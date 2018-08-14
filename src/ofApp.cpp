@@ -58,22 +58,32 @@ void ofApp::update() {
 
 	scaledVol = ofMap(smoothedVol, 0.0, 0.17, 0.0, 1.0, true);
 
-	volHistory.push_back( scaledVol );
-
-	if ( volHistory.size() >= 250 ) {
-		volHistory.erase(volHistory.begin(), volHistory.begin() + 1);
-	}
 
 }
 
 
+
+//--------------------------------------------------------------
+vector<float> & ofApp::volHistoryGenerator(float _h) {
+
+	static vector<float> _fV;
+
+	_fV.push_back( _h );
+
+	if ( _fV.size() >= 250 ) {
+		_fV.erase(_fV.begin(), _fV.begin() + 1);
+	}
+
+	return _fV;
+
+}
 
 
 
 //--------------------------------------------------------------
 void ofApp::draw() {
 
-	information();
+	information(scaledVol, volHistoryGenerator(scaledVol));
 
 	stringView(scaleVolCounter(scaledVol));
 
@@ -105,6 +115,7 @@ bool ofApp::noteOff() {
 		return true;
 	}
 
+	return false;
 
 }
 
@@ -199,24 +210,24 @@ void ofApp::stringView(int _index) {
 
 
 //--------------------------------------------------------------
-void ofApp:: information() {
+void ofApp:: information(float _h, vector<float> & _v) {
 
 	ofPushStyle();
 	ofPushMatrix();
 	ofTranslate(20, 20, 0);
 
-	ofDrawBitmapString("Scaled average vol (0-100): " + ofToString(scaledVol * 100.0, 0), 0, 18);
+	ofDrawBitmapString("Scaled average vol (0-100): " + ofToString(_h * 100.0, 0), 0, 18);
 
 	ofSetColor(255);
 	ofFill();
-	ofDrawRectangle(260, 150, 20, -scaledVol * 70.0f);
+	ofDrawRectangle(260, 150, 20, -_h * 70.0f);
 
 	ofBeginShape();
-	for (unsigned int i = 0; i < volHistory.size(); i++) {
+	for (unsigned int i = 0; i < _v.size(); i++) {
 		if ( i == 0 ) ofVertex(i, 150);
-		ofVertex(i, 150 - volHistory[i] * 70);
+		ofVertex(i, 150 - _v[i] * 70);
 
-		if ( i == volHistory.size() - 1 ) ofVertex(i, 150);
+		if ( i == _v.size() - 1 ) ofVertex(i, 150);
 	}
 	ofEndShape(false);
 

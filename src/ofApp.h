@@ -29,7 +29,7 @@ public:
 
 	vector <float> left;
 	vector <float> right;
-	vector <float> volHistory;
+	// vector <float> volHistory;
 
 	int bufferCounter;
 	int drawCounter;
@@ -41,7 +41,8 @@ public:
 
 	string sampleText;
 	vector<string> sampleTextVector;
-	void information();	
+	void information(float _h, vector<float> & _v);	
+	vector<float> & volHistoryGenerator(float _h);
 
 	ofTrueTypeFont verdana30;
 
