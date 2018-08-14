@@ -62,5 +62,7 @@ public:
 
 	int oldNote;
 
+	float audioThreshold;
+
 
 };

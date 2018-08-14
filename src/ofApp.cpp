@@ -19,11 +19,13 @@ void ofApp::setup() {
 	drawCounter	= 0;
 	smoothedVol = 0.0;
 	scaledVol = 0.0;
+	audioThreshold = 0.7;
+
+	midiOut.listOutPorts();
+	midiOut.openPort(0);
 
 
 	ofSoundStreamSettings settings;
-
-
 	auto devices = soundStream.getMatchingDevices("default");
 	if (!devices.empty()) {
 		settings.setInDevice(devices[0]);
@@ -43,8 +45,6 @@ void ofApp::setup() {
 
 	verdana30.load("verdana.ttf", 30, true, true);
 
-	midiOut.listOutPorts();
-	midiOut.openPort(0);
 
 }
 
@@ -57,7 +57,6 @@ void ofApp::setup() {
 void ofApp::update() {
 
 	scaledVol = ofMap(smoothedVol, 0.0, 0.17, 0.0, 1.0, true);
-
 
 }
 
@@ -126,12 +125,12 @@ bool ofApp::scaleVolThresholdOn(float _scaledVol) {
 
 	static bool th = false;
 
-	if (_scaledVol > 0.8 && !th) {
+	if (_scaledVol > audioThreshold && !th) {
 		th = true;
 		return true;
 	}
 
-	if (_scaledVol < 0.8) {
+	if (_scaledVol < audioThreshold) {
 		th = false;
 	}
 
@@ -151,7 +150,7 @@ bool ofApp::scaleVolThresholdOff(float _scaledVol) {
 		return true;
 	}
 
-	if (_scaledVol > 0.8) {
+	if (_scaledVol > audioThreshold) {
 		th = false;
 	}
 
@@ -168,12 +167,12 @@ int ofApp::scaleVolCounter(float _scaledVol) {
 	static int count = 0;
 	static bool th = false;
 
-	if (_scaledVol > 0.8 && th) {
+	if (_scaledVol > audioThreshold && th) {
 		count += 1;
 		th = false;
 	}
 
-	if (_scaledVol < 0.8) {
+	if (_scaledVol < audioThreshold) {
 		th = true;
 	}
 
@@ -220,8 +219,15 @@ void ofApp:: information(float _h, vector<float> & _v) {
 
 	ofSetColor(255);
 	ofFill();
-	ofDrawRectangle(260, 150, 20, -_h * 70.0f);
+	ofDrawRectangle(260, 150, 20, -_h * 70);
+	ofNoFill();
+	ofDrawRectangle(260, 150, 20, -70);
+	ofSetColor(255, 0, 0);
+	ofDrawLine(260, 150 - 70 * audioThreshold, 280, 150 - 70 * audioThreshold);
 
+
+	ofFill();
+	ofSetColor(255);
 	ofBeginShape();
 	for (unsigned int i = 0; i < _v.size(); i++) {
 		if ( i == 0 ) ofVertex(i, 150);
@@ -231,6 +237,8 @@ void ofApp:: information(float _h, vector<float> & _v) {
 	}
 	ofEndShape(false);
 
+
+	ofDrawBitmapString(ofToString(ofGetFrameRate(), 1), 0, 0);
 
 	ofPopMatrix();
 	ofPopStyle();
@@ -267,6 +275,9 @@ void ofApp::audioIn(ofSoundBuffer & input) {
 
 }
 
+
+
+
 //--------------------------------------------------------------
 void ofApp::keyPressed  (int key) {
 	if ( key == 's' ) {
@@ -277,6 +288,9 @@ void ofApp::keyPressed  (int key) {
 		soundStream.stop();
 	}
 }
+
+
+
 
 //--------------------------------------------------------------
 void ofApp::keyReleased(int key) {
