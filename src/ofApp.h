@@ -49,7 +49,7 @@ public:
 	int scaleVolCounter(float _scaledVol);
 	bool scaleVolThresholdOn(float _scaledVol);
 	bool scaleVolThresholdOff(float _scaledVol);
-	void stringView(int _index);
+	void textView(int _index);
 
 	bool noteOff();
 

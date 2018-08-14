@@ -84,7 +84,7 @@ void ofApp::draw() {
 
 	information(scaledVol, volHistoryGenerator(scaledVol));
 
-	stringView(scaleVolCounter(scaledVol));
+	textView(scaleVolCounter(scaledVol));
 
 	if (scaledVol > 0.2) {
 		midiOut.sendControlChange(1, 20, ofMap(scaledVol, 0.2, 1, 0, 127));
@@ -182,7 +182,7 @@ int ofApp::scaleVolCounter(float _scaledVol) {
 
 
 //--------------------------------------------------------------
-void ofApp::stringView(int _index) {
+void ofApp::textView(int _index) {
 
 	ofPushStyle();
 	ofPushMatrix();
