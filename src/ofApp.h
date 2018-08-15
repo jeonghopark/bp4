@@ -26,6 +26,7 @@ public:
     void gotMessage(ofMessage msg);
 
     void audioIn(ofSoundBuffer & input);
+    float getSmoothedVol(float * _in, int _s, int _e);
 
     vector <float> left;
     vector <float> right;

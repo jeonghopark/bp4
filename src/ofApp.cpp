@@ -55,6 +55,7 @@ void ofApp::setup() {
     fft = ofxFft::create(bufferSize, OF_FFT_WINDOW_BARTLETT);
 
     audioInput = new float[bufferSize];
+    cout << fft->getBinSize() << endl;
     fftOutput = new float[fft->getBinSize()];
     eqFunction = new float[fft->getBinSize()];
     eqOutput = new float[fft->getBinSize()];
@@ -146,6 +147,7 @@ void ofApp::draw() {
 
     audioInputInfo(scaledVol, volHistoryGenerator(scaledVol));
 
+
     textView(scaleVolCounter(scaledVol));
 
 
@@ -158,7 +160,6 @@ void ofApp::draw() {
     drawEqPlot(eqOutput, fft->getBinSize(), -plotHeight, plotHeight / 2);
 
 
-
     // if (scaleVolThresholdOn(scaledVol)) {
     //  oldNote = scaleVolCounter(scaledVol);
     //  midiOut.sendNoteOn(1, scaleVolCounter(scaledVol) + 64,  100);
@@ -166,7 +167,6 @@ void ofApp::draw() {
     // if (scaleVolThresholdOff(scaledVol)) {
     //  midiOut.sendNoteOff(1, oldNote + 64,  100);
     // }
-
 
 }
 
@@ -200,8 +200,8 @@ void ofApp::drawEqPlot(float* array, int length, float scale, float offset) {
     ofDrawRectangle(15, plotHeight, 10, -scaledMiddleVol * plotHeight);
     ofDrawRectangle(2 * 15, plotHeight, 10, -scaledHighVol * plotHeight);
 
-
     ofPopMatrix();
+
 }
 
 
@@ -311,7 +311,6 @@ void ofApp::midiOutputInformation() {
     ofPopMatrix();
     ofPopStyle();
 
-
 }
 
 
@@ -338,6 +337,8 @@ void ofApp::textView(int _index) {
     ofPopStyle();
 
 }
+
+
 
 
 //--------------------------------------------------------------
@@ -415,45 +416,73 @@ void ofApp::audioIn(ofSoundBuffer & input) {
 
 
 
-    float _allBaseVol = 0;
-    int numBaseCounted = 0;
-    for (int i = 0; i < 10; i++) {
-        _allBaseVol += eqOutput[i];
-        numBaseCounted += 1;
-    }
-    _allBaseVol /= (float)numBaseCounted;
-    _allBaseVol = sqrt( _allBaseVol );
+    // float _allBaseVol = 0;
+    // int numBaseCounted = 0;
+    // for (int i = 0; i < 20; i++) {
+    //     _allBaseVol += eqOutput[i];
+    //     numBaseCounted += 1;
+    // }
+    // _allBaseVol /= (float)numBaseCounted;
+    // _allBaseVol = sqrt( _allBaseVol );
+    // smoothedBaseVol *= 0.93;
+    // smoothedBaseVol += 0.07 * _allBaseVol;
+
+    // float _allMiddleVol = 0;
+    // int numMiddleCounted = 0;
+    // for (int i = 20; i < 80; i++) {
+    //     _allMiddleVol += eqOutput[i];
+    //     numMiddleCounted += 1;
+    // }
+    // _allMiddleVol /= (float)numMiddleCounted;
+    // _allMiddleVol = sqrt( _allMiddleVol );
+    // smoothedMiddleVol *= 0.93;
+    // smoothedMiddleVol += 0.07 * _allMiddleVol;
+
+    // float _allHighVol = 0;
+    // int numHighCounted = 0;
+    // for (int i = 80; i < 257; i++) {
+    //     _allHighVol += eqOutput[i];
+    //     numHighCounted += 1;
+    // }
+    // _allHighVol /= (float)numHighCounted;
+    // _allHighVol = sqrt( _allHighVol );
+    // smoothedHighVol *= 0.93;
+    // smoothedHighVol += 0.07 * _allHighVol;
+
+
     smoothedBaseVol *= 0.93;
-    smoothedBaseVol += 0.07 * _allBaseVol;
+    smoothedBaseVol += 0.07 * getSmoothedVol(eqOutput, 0, 10);
 
-    float _allMiddleVol = 0;
-    int numMiddleCounted = 0;
-    for (int i = 10; i < 40; i++) {
-        _allMiddleVol += eqOutput[i];
-        numMiddleCounted += 1;
-    }
-    _allMiddleVol /= (float)numMiddleCounted;
-    _allMiddleVol = sqrt( _allMiddleVol );
     smoothedMiddleVol *= 0.93;
-    smoothedMiddleVol += 0.07 * _allMiddleVol;
+    smoothedMiddleVol += 0.07 * getSmoothedVol(eqOutput, 20, 80);
 
-    float _allHighVol = 0;
-    int numHighCounted = 0;
-    for (int i = 40; i < 160; i++) {
-        _allHighVol += eqOutput[i];
-        numHighCounted += 1;
-    }
-    _allHighVol /= (float)numHighCounted;
-    _allHighVol = sqrt( _allHighVol );
     smoothedHighVol *= 0.93;
-    smoothedHighVol += 0.07 * _allHighVol;
-
+    smoothedHighVol += 0.07 * getSmoothedVol(eqOutput, 80, 257);
 
 
     fft->setPolar(eqOutput, fft->getPhase());
 
     fft->clampSignal();
     memcpy(ifftOutput, fft->getSignal(), sizeof(float) * fft->getSignalSize());
+
+}
+
+
+
+
+//--------------------------------------------------------------
+float ofApp::getSmoothedVol(float * _in, int _s, int _e) {
+
+    float _allMiddleVol = 0;
+    int _numMiddleCounted = 0;
+    for (int i = _s; i < _e; i++) {
+        _allMiddleVol += _in[i];
+        _numMiddleCounted += 1;
+    }
+    _allMiddleVol /= (float)_numMiddleCounted;
+    _allMiddleVol = sqrt( _allMiddleVol );
+    return _allMiddleVol;
+
 }
 
 
