@@ -416,40 +416,6 @@ void ofApp::audioIn(ofSoundBuffer & input) {
 
 
 
-    // float _allBaseVol = 0;
-    // int numBaseCounted = 0;
-    // for (int i = 0; i < 20; i++) {
-    //     _allBaseVol += eqOutput[i];
-    //     numBaseCounted += 1;
-    // }
-    // _allBaseVol /= (float)numBaseCounted;
-    // _allBaseVol = sqrt( _allBaseVol );
-    // smoothedBaseVol *= 0.93;
-    // smoothedBaseVol += 0.07 * _allBaseVol;
-
-    // float _allMiddleVol = 0;
-    // int numMiddleCounted = 0;
-    // for (int i = 20; i < 80; i++) {
-    //     _allMiddleVol += eqOutput[i];
-    //     numMiddleCounted += 1;
-    // }
-    // _allMiddleVol /= (float)numMiddleCounted;
-    // _allMiddleVol = sqrt( _allMiddleVol );
-    // smoothedMiddleVol *= 0.93;
-    // smoothedMiddleVol += 0.07 * _allMiddleVol;
-
-    // float _allHighVol = 0;
-    // int numHighCounted = 0;
-    // for (int i = 80; i < 257; i++) {
-    //     _allHighVol += eqOutput[i];
-    //     numHighCounted += 1;
-    // }
-    // _allHighVol /= (float)numHighCounted;
-    // _allHighVol = sqrt( _allHighVol );
-    // smoothedHighVol *= 0.93;
-    // smoothedHighVol += 0.07 * _allHighVol;
-
-
     smoothedBaseVol *= 0.93;
     smoothedBaseVol += 0.07 * getSmoothedVol(eqOutput, 0, 10);
 
