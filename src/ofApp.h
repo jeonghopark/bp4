@@ -1,8 +1,8 @@
 #pragma once
 
 #include "ofMain.h"
-
 #include "ofxMidi.h"
+#include "ofxFft.h"
 
 
 class ofApp : public ofBaseApp {
@@ -37,6 +37,14 @@ public:
 	float smoothedVol;
 	float scaledVol;
 
+	float smoothedBaseVol;
+	float scaledBaseVol;
+	float smoothedMiddleVol;
+	float scaledMiddleVol;
+	float smoothedHighVol;
+	float scaledHighVol;
+
+
 	ofSoundStream soundStream;
 
 	string sampleText;
@@ -64,5 +72,30 @@ public:
 
 	float audioThreshold;
 
+
+	void midiOutputInformation();
+
+
+	int plotHeight, bufferSize;
+
+	ofxFft* fft;
+
+	float* audioInput;
+	float* fftOutput;
+	float* eqFunction;
+	float* eqOutput;
+	float* ifftOutput;
+
+	// vector<float> audioInput;
+	// vector<float> fftOutput;
+	// vector<float> eqFunction;
+	// vector<float> eqOutput;
+	// vector<float> ifftOutput;
+
+
+	float appWidth;
+	float appHeight;
+
+	void plot(float* array, int length, float scale, float offset);
 
 };

@@ -9,7 +9,7 @@ void ofApp::setup() {
 
 	soundStream.printDeviceList();
 
-	int bufferSize = 256;
+	int bufferSize = 512;
 
 	left.assign(bufferSize, 0.0);
 	right.assign(bufferSize, 0.0);
@@ -20,6 +20,10 @@ void ofApp::setup() {
 	smoothedVol = 0.0;
 	scaledVol = 0.0;
 	audioThreshold = 0.7;
+
+	smoothedBaseVol = 0.0;
+	scaledBaseVol = 0.0;
+
 
 	midiOut.listOutPorts();
 	midiOut.openPort(0);
@@ -46,6 +50,32 @@ void ofApp::setup() {
 	verdana30.load("verdana.ttf", 30, true, true);
 
 
+	plotHeight = 128;
+	bufferSize = 512;
+	fft = ofxFft::create(bufferSize, OF_FFT_WINDOW_BARTLETT);
+
+	audioInput = new float[bufferSize];
+	fftOutput = new float[fft->getBinSize()];
+	eqFunction = new float[fft->getBinSize()];
+	eqOutput = new float[fft->getBinSize()];
+	ifftOutput = new float[bufferSize];
+
+	// audioInput.assign(bufferSize, 0.0);
+	// fftOutput.assign(fft->getBinSize(), 0.0);
+	// eqFunction.assign(fft->getBinSize(), 0.0);
+	// eqOutput.assign(fft->getBinSize(), 0.0);
+	// ifftOutput.assign(bufferSize, 0.0);
+
+
+	for (int i = 0; i < fft->getBinSize(); i++) {
+		eqFunction[i] = (float) (fft->getBinSize() - i) / (float) fft->getBinSize();
+	}
+
+	appWidth = ofGetWidth();
+	appHeight = ofGetHeight();
+
+
+
 }
 
 
@@ -57,6 +87,9 @@ void ofApp::setup() {
 void ofApp::update() {
 
 	scaledVol = ofMap(smoothedVol, 0.0, 0.17, 0.0, 1.0, true);
+	scaledBaseVol = ofMap(smoothedBaseVol, 0.0, 0.17, 0.0, 1.0, true);
+	scaledMiddleVol = ofMap(smoothedMiddleVol, 0.0, 0.17, 0.0, 1.0, true);
+	scaledHighVol = ofMap(smoothedHighVol, 0.0, 0.17, 0.0, 1.0, true);
 
 }
 
@@ -87,8 +120,25 @@ void ofApp::draw() {
 	textView(scaleVolCounter(scaledVol));
 
 	if (scaledVol > 0.2) {
-		midiOut.sendControlChange(1, 20, ofMap(scaledVol, 0.2, 1, 0, 127));
+		midiOut.sendControlChange(1, 20, ofMap(scaledVol, 0.0, 1, 0, 127));
 	}
+
+	if (scaledBaseVol > 0.2) {
+		midiOut.sendControlChange(1, 21, ofMap(scaledBaseVol, 0.0, 1, 0, 127));
+	}
+	if (scaledMiddleVol > 0.2) {
+		midiOut.sendControlChange(1, 22, ofMap(scaledMiddleVol, 0.0, 1, 0, 127));
+	}
+	if (scaledHighVol > 0.2) {
+		midiOut.sendControlChange(1, 23, ofMap(scaledHighVol, 0.0, 1, 0, 127));
+	}
+	
+	midiOutputInformation();
+
+
+	plot(eqOutput, fft->getBinSize(), -plotHeight, plotHeight / 2);
+
+
 
 	// if (scaleVolThresholdOn(scaledVol)) {
 	// 	oldNote = scaleVolCounter(scaledVol);
@@ -99,6 +149,40 @@ void ofApp::draw() {
 	// }
 
 
+}
+
+
+
+
+//--------------------------------------------------------------
+void ofApp::plot(float* array, int length, float scale, float offset) {
+
+	ofPushMatrix();
+
+	ofTranslate( 20, 200 );
+
+	// glTranslatef(fft->getBinSize(), 0, 0);
+	// ofDrawBitmapString("EQd FFT Output", 0, 0);
+
+	ofNoFill();
+	ofDrawRectangle(0, 0, length, plotHeight);
+	glPushMatrix();
+	glTranslatef(0, plotHeight / 2 + offset, 0);
+	ofBeginShape();
+	for (int i = 0; i < length; i++) {
+		ofVertex(i, array[i] * scale);
+	}
+	ofEndShape();
+	glPopMatrix();
+
+	ofTranslate( length + 10, 0 );
+
+	ofDrawRectangle(0, plotHeight, 10, -scaledBaseVol * plotHeight);
+	ofDrawRectangle(15, plotHeight, 10, -scaledMiddleVol * plotHeight);
+	ofDrawRectangle(2 * 15, plotHeight, 10, -scaledHighVol * plotHeight);
+
+
+	ofPopMatrix();
 }
 
 
@@ -181,28 +265,55 @@ int ofApp::scaleVolCounter(float _scaledVol) {
 }
 
 
+
+
+//--------------------------------------------------------------
+void ofApp::midiOutputInformation() {
+
+	ofPushStyle();
+	ofPushMatrix();
+
+	ofTranslate(500, 150);
+
+	string _v = ofToString(ofMap(scaledVol, 0.0, 1, 0, 127), 0);
+	ofDrawBitmapString("MIDI CH : 1 / Ctrl Nr : 20 / " + _v, 0, 0);
+
+	string _vB = ofToString(ofMap(scaledBaseVol, 0.0, 1, 0, 127), 0);
+	ofDrawBitmapString("MIDI CH : 1 / Ctrl Nr : 21 / " + _vB, 0, 20);
+
+	string _vM = ofToString(ofMap(scaledMiddleVol, 0.0, 1, 0, 127), 0);
+	ofDrawBitmapString("MIDI CH : 1 / Ctrl Nr : 22 / " + _vM, 0, 40);
+
+	string _vH = ofToString(ofMap(scaledHighVol, 0.0, 1, 0, 127), 0);
+	ofDrawBitmapString("MIDI CH : 1 / Ctrl Nr : 23 / " + _vH, 0, 60);
+
+	ofPopMatrix();
+	ofPopStyle();
+
+
+}
+
+
+
 //--------------------------------------------------------------
 void ofApp::textView(int _index) {
 
 	ofPushStyle();
 	ofPushMatrix();
 
-	ofTranslate(500, 50);
+	ofTranslate(500, ofGetHeight() - 150);
 
 	ofDrawBitmapString("Sample Text", 0, 0);
-
 	ofDrawBitmapString(sampleText, 0, 20);
 
 	ofDrawBitmapString("Audio Trigger Sequence Text", 0, 55);
-
 	verdana30.drawString(sampleTextVector[_index % sampleTextVector.size()], 0, 100);
+
+	ofPopMatrix();
+	ofPopStyle();
 
 	ofPushStyle();
 	ofDrawBitmapString("/ Tex Count : " + ofToString(scaleVolCounter(scaledVol) % sampleTextVector.size(), 0), 100, 0);
-	ofPopStyle();
-
-
-	ofPopMatrix();
 	ofPopStyle();
 
 }
@@ -265,14 +376,61 @@ void ofApp::audioIn(ofSoundBuffer & input) {
 	}
 
 	curVol /= (float)numCounted;
-
 	curVol = sqrt( curVol );
-
 	smoothedVol *= 0.93;
 	smoothedVol += 0.07 * curVol;
 
 	bufferCounter++;
 
+	// memcpy(&audioInput, &left, sizeof(float) * bufferSize);
+	audioInput = &left[0];
+	// audioInput = left;
+	fft->setSignal(audioInput);
+	memcpy(fftOutput, fft->getAmplitude(), sizeof(float) * fft->getBinSize());
+
+	for (int i = 0; i < fft->getBinSize(); i++) {
+		eqOutput[i] = fftOutput[i] * eqFunction[i];
+	}
+
+	float _allBaseVol = 0;
+	int numBaseCounted = 0;
+	for (int i = 0; i < 10; i++) {
+		_allBaseVol += eqOutput[i];
+		numBaseCounted += 1;
+	}
+	_allBaseVol /= (float)numBaseCounted;
+	_allBaseVol = sqrt( _allBaseVol );
+	smoothedBaseVol *= 0.93;
+	smoothedBaseVol += 0.07 * _allBaseVol;
+
+	float _allMiddleVol = 0;
+	int numMiddleCounted = 0;
+	for (int i = 10; i < 40; i++) {
+		_allMiddleVol += eqOutput[i];
+		numMiddleCounted += 1;
+	}
+	_allMiddleVol /= (float)numMiddleCounted;
+	_allMiddleVol = sqrt( _allMiddleVol );
+	smoothedMiddleVol *= 0.93;
+	smoothedMiddleVol += 0.07 * _allMiddleVol;
+
+	float _allHighVol = 0;
+	int numHighCounted = 0;
+	for (int i = 40; i < 160; i++) {
+		_allHighVol += eqOutput[i];
+		numHighCounted += 1;
+	}
+	_allHighVol /= (float)numHighCounted;
+	_allHighVol = sqrt( _allHighVol );
+	smoothedHighVol *= 0.93;
+	smoothedHighVol += 0.07 * _allHighVol;
+
+
+
+	fft->setPolar(eqOutput, fft->getPhase());
+
+	fft->clampSignal();
+	memcpy(ifftOutput, fft->getSignal(), sizeof(float) * fft->getSignalSize());
 }
 
 
