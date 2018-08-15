@@ -138,8 +138,10 @@ void ofApp::midiOutScaleChange() {
         midiOut.sendControlChange(1, 23, ofMap(scaledHighVol, 0.0, 1, 0, 127));
     }
 
-
 }
+
+
+
 
 //--------------------------------------------------------------
 void ofApp::draw() {
@@ -148,16 +150,11 @@ void ofApp::draw() {
 
     textView(scaleVolCounter(scaledVol));
 
-
     midiOutScaleChange();
-
 
     midiOutputInformation();
 
-
     drawEqPlot(eqOutput, fft->getBinSize(), -plotHeight, plotHeight / 2);
-
-
 
     // if (scaleVolThresholdOn(scaledVol)) {
     //  oldNote = scaleVolCounter(scaledVol);
@@ -166,7 +163,6 @@ void ofApp::draw() {
     // if (scaleVolThresholdOff(scaledVol)) {
     //  midiOut.sendNoteOff(1, oldNote + 64,  100);
     // }
-
 
 }
 
