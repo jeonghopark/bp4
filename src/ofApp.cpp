@@ -1,5 +1,6 @@
 #include "ofApp.h"
 
+
 //--------------------------------------------------------------
 void ofApp::setup() {
 
@@ -7,7 +8,24 @@ void ofApp::setup() {
     ofSetCircleResolution(80);
     ofBackground(54, 54, 54);
 
+
+
+    ofBuffer _buffer = ofBufferFromFile("DerBluePunktImAll.txt");
+    if (_buffer.size()) {
+        for (ofBuffer::Line it = _buffer.getLines().begin(), end = _buffer.getLines().end(); it != end; ++it) {
+            string line = *it;
+            if (line.empty() == false) {
+                seussLines.push_back(line);
+            }
+        }
+    }
+
+
+    textWords = getStringVector("DerBluePunktImAll.txt");
+
+
     soundStream.printDeviceList();
+
 
     int bufferSize = 512;
 
@@ -43,10 +61,6 @@ void ofApp::setup() {
     soundStream.setup(settings);
 
 
-    sampleText = "Ash nazg durbatulûk, ash nazg gimbatul, Ash nazg thrakatulûk agh burzum-ishi krimpatul.";
-
-    sampleTextVector = ofSplitString( sampleText, " ");
-
     verdana30.load("verdana.ttf", 30, true, true);
 
 
@@ -75,9 +89,38 @@ void ofApp::setup() {
     appHeight = ofGetHeight();
 
 
-
 }
 
+
+
+//--------------------------------------------------------------
+vector<string> ofApp::getStringVector(string fileName) {
+
+    vector<string> _result;
+
+    ofBuffer _bufferBound = ofBufferFromFile(fileName);
+    if (_bufferBound.size()) {
+
+        for (ofBuffer::Line it = _bufferBound.getLines().begin(), end = _bufferBound.getLines().end(); it != end; ++it) {
+            string _s = *it;
+            istringstream iss(_s);
+            for (std::string _s; iss >> _s; ) {
+                if (_s.at(0) != ',') {
+                    if (_s.at(_s.size() - 1) == '.' || _s.at(_s.size() - 1) == ',') {
+                        _s.erase(_s.end() - 1);
+                        _result.push_back(_s);
+                    } else {
+                        _result.push_back(_s);
+                    }
+                }
+            }
+        }
+
+    }
+
+    return _result;
+
+}
 
 
 
@@ -87,7 +130,6 @@ void ofApp::setup() {
 void ofApp::update() {
 
     scaleVolChange();
-
 
 }
 
@@ -163,6 +205,8 @@ void ofApp::draw() {
     // if (scaleVolThresholdOff(scaledVol)) {
     //  midiOut.sendNoteOff(1, oldNote + 64,  100);
     // }
+
+
 
 }
 
@@ -318,20 +362,27 @@ void ofApp::textView(int _index) {
     ofPushStyle();
     ofPushMatrix();
 
-    ofTranslate(500, ofGetHeight() - 150);
+    ofTranslate(500, ofGetHeight() - 250);
 
-    ofDrawBitmapString("Sample Text", 0, 0);
-    ofDrawBitmapString(sampleText, 0, 20);
 
     ofDrawBitmapString("Audio Trigger Sequence Text", 0, 55);
-    verdana30.drawString(sampleTextVector[_index % sampleTextVector.size()], 0, 100);
+    verdana30.drawString(textWords[_index % textWords.size()], 0, 100);
 
     ofPopMatrix();
     ofPopStyle();
 
     ofPushStyle();
-    ofDrawBitmapString("/ Tex Count : " + ofToString(scaleVolCounter(scaledVol) % sampleTextVector.size(), 0), 100, 0);
+    ofDrawBitmapString("/ Tex Count : " + ofToString(scaleVolCounter(scaledVol) % textWords.size(), 0), 100, 0);
     ofPopStyle();
+
+
+    for (int i = 0; i < seussLines.size(); i++) {
+        string typedLine = seussLines[i];
+        ofSetColor(255);
+        ofDrawBitmapString(typedLine, 10, i * 20 + 600);
+    }
+
+
 
 }
 
