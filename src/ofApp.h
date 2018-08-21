@@ -3,6 +3,7 @@
 #include "ofMain.h"
 #include "ofxMidi.h"
 #include "ofxFft.h"
+#include "ofxGui.h"
 
 
 class ofApp : public ofBaseApp {
@@ -74,7 +75,9 @@ public:
 
 
     void midiOutputInformation();
-
+    vector<string> midiPort;
+    int selectMidiPort;
+    string selectMidiName;
 
     int plotHeight, bufferSize;
 
@@ -105,5 +108,10 @@ public:
     vector<string> getStringVector(string fileName);
     vector<string> seussLines;
     vector<string> textWords;
+
+
+    ofxPanel gui;
+
+    float testMidiSignal;
 
 };

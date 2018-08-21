@@ -21,6 +21,7 @@ void ofApp::setup() {
     }
 
 
+
     textWords = getStringVector("DerBluePunktImAll.txt");
 
 
@@ -44,7 +45,16 @@ void ofApp::setup() {
 
 
     midiOut.listOutPorts();
-    midiOut.openPort("IAC Driver Bus 1");
+    midiPort = midiOut.getOutPortList();
+    for (int i = 0; i < midiPort.size(); i++) {
+        cout << midiPort[i] << endl;
+        if (midiPort[i].at(0) == 'I' && midiPort[i].at(1) == 'A' && midiPort[i].at(2) == 'C') {
+            selectMidiPort =  i;
+        }
+    }
+    cout << selectMidiPort << endl;
+    midiOut.openPort(0);
+    selectMidiName = midiPort[selectMidiPort];
 
 
     ofSoundStreamSettings settings;
@@ -167,18 +177,19 @@ void ofApp::scaleVolChange() {
 //--------------------------------------------------------------
 void ofApp::midiOutScaleChange() {
 
-    if (scaledVol > 0.2) {
-        midiOut.sendControlChange(1, 20, ofMap(scaledVol, 0.0, 1, 0, 127));
+    if (scaledVol > 0.1) {
+        midiOut.sendControlChange(1, 20, int(ofMap(scaledVol, 0.1, 1, -24, 24)));
     }
-    if (scaledBaseVol > 0.2) {
-        midiOut.sendControlChange(1, 21, ofMap(scaledBaseVol, 0.0, 1, 0, 127));
+    if (scaledBaseVol > 0.1) {
+        midiOut.sendControlChange(1, 21, ofMap(scaledBaseVol, 0.1, 1, 0, 127));
     }
-    if (scaledMiddleVol > 0.2) {
-        midiOut.sendControlChange(1, 22, ofMap(scaledMiddleVol, 0.0, 1, 0, 127));
+    if (scaledMiddleVol > 0.1) {
+        midiOut.sendControlChange(1, 22, ofMap(scaledMiddleVol, 0.1, 1, 0, 127));
     }
-    if (scaledHighVol > 0.2) {
-        midiOut.sendControlChange(1, 23, ofMap(scaledHighVol, 0.0, 1, 0, 127));
+    if (scaledHighVol > 0.1) {
+        midiOut.sendControlChange(1, 23, ofMap(scaledHighVol, 0.1, 1, 0, 127));
     }
+
 
 }
 
@@ -205,6 +216,12 @@ void ofApp::draw() {
     // if (scaleVolThresholdOff(scaledVol)) {
     //  midiOut.sendNoteOff(1, oldNote + 64,  100);
     // }
+
+
+    // testMidiSignal += 0.1;
+    // float _midiS = ofMap(int(testMidiSignal) % 127, 0, 127, 0, 7);
+    // midiOut.sendControlChange(1, 7, int(_midiS));
+    // ofDrawBitmapString(int(_midiS), 700, 20);
 
 
 
@@ -352,6 +369,13 @@ void ofApp::midiOutputInformation() {
     ofPopStyle();
 
 
+    ofDrawBitmapString("Select Midi Port: " + selectMidiName, 200, 20);
+
+    for (int i = 0; i < midiPort.size(); i++) {
+        ofDrawBitmapString("All Midi Port: " + midiPort[i], 500, i * 20 + 20);        
+    }
+
+
 }
 
 
@@ -365,23 +389,22 @@ void ofApp::textView(int _index) {
     ofTranslate(500, ofGetHeight() - 250);
 
 
-    ofDrawBitmapString("Audio Trigger Sequence Text", 0, 55);
-    verdana30.drawString(textWords[_index % textWords.size()], 0, 100);
+    // ofDrawBitmapString("Audio Trigger Sequence Text", 0, 55);
+    // verdana30.drawString(textWords[_index % textWords.size()], 0, 100);
 
     ofPopMatrix();
     ofPopStyle();
 
     ofPushStyle();
-    ofDrawBitmapString("/ Tex Count : " + ofToString(scaleVolCounter(scaledVol) % textWords.size(), 0), 100, 0);
+    // ofDrawBitmapString("/ Tex Count : " + ofToString(scaleVolCounter(scaledVol) % textWords.size(), 0), 100, 0);
     ofPopStyle();
 
 
-    for (int i = 0; i < seussLines.size(); i++) {
-        string typedLine = seussLines[i];
-        ofSetColor(255);
-        ofDrawBitmapString(typedLine, 10, i * 20 + 600);
-    }
-
+    // for (int i = 0; i < seussLines.size(); i++) {
+    //     string typedLine = seussLines[i];
+    //     ofSetColor(255);
+    //     ofDrawBitmapString(typedLine, 10, i * 20 + 600);
+    // }
 
 
 }
@@ -527,6 +550,9 @@ void ofApp::mouseMoved(int x, int y ) {
 
 //--------------------------------------------------------------
 void ofApp::mouseDragged(int x, int y, int button) {
+
+    // float volume = ofMap(ofGetMouseX(), 0, ofGetWidth(), 0, 127);
+    // midiOut.sendControlChange(1, 7, volume);
 
 }
 
