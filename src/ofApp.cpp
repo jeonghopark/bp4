@@ -1,11 +1,69 @@
 #include "ofApp.h"
 
+
 //--------------------------------------------------------------
 void ofApp::setup() {
 
+#ifdef DEBUG
+
+#else
+    ofSetDataPathRoot("../Resources/data");
+#endif
+
+
     ofSetVerticalSync(true);
     ofSetCircleResolution(80);
+
     ofBackground(54, 54, 54);
+
+    fullscreenRatio = 1.33333;
+    setupGui();
+
+    switchOn = false;
+
+    for (int i = 0; i < 30; i++) {
+        ofTrueTypeFont _f;
+        _f.load( "verdana.ttf", (int)ofRandom(7, 24) );
+        alphabetFont.push_back(_f);
+        TextParticle _t = TextParticle( ofVec3f(621, 556, 0.0), alphabetFont[i] );
+        textParticles.push_back(_t);
+        _t = TextParticle( ofVec3f(778, 556, 0.0), alphabetFont[i] );
+        textParticles.push_back(_t);
+    }
+
+
+    palast_trans.load("palast_trans.png");
+    palast_trans_all.load("palast_trans_all.png");
+    palast_black_windows.load("palast_black_windows.png");
+    palast_playzone.load("palast_playzone.png");
+
+
+
+    ofBuffer _buffer = ofBufferFromFile("DerBluePunktImAll.txt");
+    if (_buffer.size()) {
+        for (ofBuffer::Line it = _buffer.getLines().begin(), end = _buffer.getLines().end(); it != end; ++it) {
+            string line = *it;
+            if (line.empty() == false) {
+                seussLines.push_back(line);
+            }
+        }
+    }
+
+    textWords = getStringVector("DerBluePunktImAll.txt");
+
+
+    midiOut.listOutPorts();
+    midiPort = midiOut.getOutPortList();
+    for (int i = 0; i < midiPort.size(); i++) {
+        cout << midiPort[i] << endl;
+        if (midiPort[i].at(0) == 'I' && midiPort[i].at(1) == 'A' && midiPort[i].at(2) == 'C') {
+            selectMidiPort =  i;
+        }
+    }
+    midiOut.openPort(0);
+    selectMidiName = midiPort[selectMidiPort];
+
+
 
     soundStream.printDeviceList();
 
@@ -20,14 +78,8 @@ void ofApp::setup() {
     smoothedVol = 0.0;
     scaledVol = 0.0;
     audioThreshold = 0.7;
-
     smoothedBaseVol = 0.0;
     scaledBaseVol = 0.0;
-
-
-    midiOut.listOutPorts();
-    midiOut.openPort("IAC Driver Bus 1");
-
 
     ofSoundStreamSettings settings;
     auto devices = soundStream.getMatchingDevices("default");
@@ -42,10 +94,6 @@ void ofApp::setup() {
     settings.bufferSize = bufferSize;
     soundStream.setup(settings);
 
-
-    sampleText = "Ash nazg durbatulûk, ash nazg gimbatul, Ash nazg thrakatulûk agh burzum-ishi krimpatul.";
-
-    sampleTextVector = ofSplitString( sampleText, " ");
 
     verdana30.load("verdana.ttf", 30, true, true);
 
@@ -76,11 +124,47 @@ void ofApp::setup() {
     appHeight = ofGetHeight();
 
 
+}
+
+
+
+//--------------------------------------------------------------
+vector<string> ofApp::getStringVector(string fileName) {
+
+    vector<string> _result;
+
+    ofBuffer _bufferBound = ofBufferFromFile(fileName);
+    if (_bufferBound.size()) {
+
+        for (ofBuffer::Line it = _bufferBound.getLines().begin(), end = _bufferBound.getLines().end(); it != end; ++it) {
+            string _s = *it;
+            istringstream iss(_s);
+            for (std::string _s; iss >> _s; ) {
+                if (_s.at(0) != ',') {
+                    if (_s.at(_s.size() - 1) == '.' || _s.at(_s.size() - 1) == ',') {
+                        _s.erase(_s.end() - 1);
+                        _result.push_back(_s);
+                    } else {
+                        _result.push_back(_s);
+                    }
+                }
+            }
+        }
+
+    }
+
+    return _result;
 
 }
 
 
 
+
+//--------------------------------------------------------------
+bool shouldRemove(TextParticle &p) {
+    if (p.position.y < 0 ) return true;
+    else return false;
+}
 
 
 
@@ -88,6 +172,54 @@ void ofApp::setup() {
 void ofApp::update() {
 
     scaleVolChange();
+
+    frameRate = ofToString(ofGetFrameRate(), 1);
+
+
+    for (int i = 0; i < textParticles.size(); ++i) {
+        textParticles[i].update();
+    }
+
+    ofRemove(textParticles, shouldRemove);
+
+    if (lineMovingOnOff) {
+        lineMoving += 7;
+    }
+
+    if (scaleVolThresholdOn(scaledVol) && switchOn == false) {
+        switchOn = true;
+        for (int i = 0; i < 30; i++) {
+            if (ofRandom(1) < 0.5) {
+                TextParticle _t = TextParticle( ofVec3f(621, 556, 0.0), alphabetFont[i] );
+                textParticles.push_back(_t);
+            } else {
+                TextParticle _t = TextParticle( ofVec3f(778, 556, 0.0), alphabetFont[i] );
+                textParticles.push_back(_t);
+            }
+        }
+    } else {
+        switchOn = false;
+    }
+
+
+    // cout << textParticles.size() << endl;
+
+    // if (lineMoving > 282) {
+    //     lineMovingOnOff = false;
+    //     lineMoving = 0;
+
+    //     for (int i = 0; i < 30; i++) {
+    //         // alphabetFont.load( "verdana.ttf", (int)ofRandom(7, 24) );
+    //         if (ofRandom(1) < 0.5) {
+    //             TextParticle _t = TextParticle( ofVec3f(621, 556, 0.0), alphabetFont[i] );
+    //             textParticles.push_back(_t);
+    //         } else {
+    //             TextParticle _t = TextParticle( ofVec3f(778, 556, 0.0), alphabetFont[i] );
+    //             textParticles.push_back(_t);
+    //         }
+    //     }
+
+    // }
 
 
 }
@@ -126,40 +258,59 @@ void ofApp::scaleVolChange() {
 //--------------------------------------------------------------
 void ofApp::midiOutScaleChange() {
 
-    if (scaledVol > 0.2) {
-        midiOut.sendControlChange(1, 20, ofMap(scaledVol, 0.0, 1, 0, 127));
+    if (scaledVol > 0.1) {
+        midiOut.sendControlChange(1, 20, int(ofMap(scaledVol, 0.1, 1, -24, 24)));
     }
-    if (scaledBaseVol > 0.2) {
-        midiOut.sendControlChange(1, 21, ofMap(scaledBaseVol, 0.0, 1, 0, 127));
+    if (scaledBaseVol > 0.1) {
+        midiOut.sendControlChange(1, 21, ofMap(scaledBaseVol, 0.1, 1, 0, 127));
     }
-    if (scaledMiddleVol > 0.2) {
-        midiOut.sendControlChange(1, 22, ofMap(scaledMiddleVol, 0.0, 1, 0, 127));
+    if (scaledMiddleVol > 0.1) {
+        midiOut.sendControlChange(1, 22, ofMap(scaledMiddleVol, 0.1, 1, 0, 127));
     }
-    if (scaledHighVol > 0.2) {
-        midiOut.sendControlChange(1, 23, ofMap(scaledHighVol, 0.0, 1, 0, 127));
+    if (scaledHighVol > 0.1) {
+        midiOut.sendControlChange(1, 23, ofMap(scaledHighVol, 0.1, 1, 0, 127));
     }
 
 
 }
 
+
+
+
 //--------------------------------------------------------------
 void ofApp::draw() {
 
-    audioInputInfo(scaledVol, volHistoryGenerator(scaledVol));
 
+<<<<<<< HEAD
+
+    textView(scaleVolCounter(scaledVol));
+=======
+    palast_playzone.draw(0, 0, ofGetWidth(), ofGetHeight());
+>>>>>>> basic-midi
+
+    for (int i = 0; i < textParticles.size(); ++i) {
+        textParticles[i].draw();
+    }
+
+
+    // palast_trans.draw(0, 0, ofGetWidth(), ofGetHeight());
+    palast_trans_all.draw(0, 0, ofGetWidth(), ofGetHeight());
+    palast_black_windows.draw(0, 0, ofGetWidth(), ofGetHeight());
+
+
+    audioInputInfo(scaledVol, volHistoryGenerator(scaledVol));
 
     textView(scaleVolCounter(scaledVol));
 
-
     midiOutScaleChange();
 
-
+<<<<<<< HEAD
+=======
     midiOutputInformation();
-
 
     drawEqPlot(eqOutput, fft->getBinSize(), -plotHeight, plotHeight / 2);
 
-
+>>>>>>> basic-midi
     // if (scaleVolThresholdOn(scaledVol)) {
     //  oldNote = scaleVolCounter(scaledVol);
     //  midiOut.sendNoteOn(1, scaleVolCounter(scaledVol) + 64,  100);
@@ -168,32 +319,23 @@ void ofApp::draw() {
     //  midiOut.sendNoteOff(1, oldNote + 64,  100);
     // }
 
+<<<<<<< HEAD
 }
 
 
+=======
+
+    // testMidiSignal += 0.1;
+    // float _midiS = ofMap(int(testMidiSignal) % 127, 0, 127, 0, 7);
+    // midiOut.sendControlChange(1, 7, int(_midiS));
+    // ofDrawBitmapString(int(_midiS), 700, 20);
+>>>>>>> basic-midi
 
 
-//--------------------------------------------------------------
-void ofApp::drawEqPlot(float* array, int length, float scale, float offset) {
+    gui.draw();
 
-    ofPushMatrix();
 
-    ofTranslate( 20, 200 );
-
-    // glTranslatef(fft->getBinSize(), 0, 0);
-    // ofDrawBitmapString("EQd FFT Output", 0, 0);
-
-    ofNoFill();
-    ofDrawRectangle(0, 0, length, plotHeight);
-    glPushMatrix();
-    glTranslatef(0, plotHeight / 2 + offset, 0);
-    ofBeginShape();
-    for (int i = 0; i < length; i++) {
-        ofVertex(i, array[i] * scale);
-    }
-    ofEndShape();
-    glPopMatrix();
-
+<<<<<<< HEAD
     ofTranslate( length + 10, 0 );
 
     ofDrawRectangle(0, plotHeight, 10, -scaledBaseVol * plotHeight);
@@ -202,6 +344,8 @@ void ofApp::drawEqPlot(float* array, int length, float scale, float offset) {
 
     ofPopMatrix();
 
+=======
+>>>>>>> basic-midi
 }
 
 
@@ -226,15 +370,8 @@ bool ofApp::noteOff() {
 //--------------------------------------------------------------
 bool ofApp::scaleVolThresholdOn(float _scaledVol) {
 
-    static bool th = false;
-
-    if (_scaledVol > audioThreshold && !th) {
-        th = true;
+    if (_scaledVol > audioThresholdLevel) {
         return true;
-    }
-
-    if (_scaledVol < audioThreshold) {
-        th = false;
     }
 
     return false;
@@ -246,16 +383,16 @@ bool ofApp::scaleVolThresholdOn(float _scaledVol) {
 //--------------------------------------------------------------
 bool ofApp::scaleVolThresholdOff(float _scaledVol) {
 
-    static bool th = false;
+    // static bool th = false;
 
-    if (_scaledVol < 0.3 && !th) {
-        th = true;
-        return true;
-    }
+    // if (_scaledVol < 0.3 && !th) {
+    //     th = true;
+    //     return true;
+    // }
 
-    if (_scaledVol > audioThreshold) {
-        th = false;
-    }
+    // if (_scaledVol > audioThreshold) {
+    //     th = false;
+    // }
 
     return false;
 
@@ -270,12 +407,12 @@ int ofApp::scaleVolCounter(float _scaledVol) {
     static int count = 0;
     static bool th = false;
 
-    if (_scaledVol > audioThreshold && th) {
+    if (_scaledVol > audioThresholdLevel && th) {
         count += 1;
         th = false;
     }
 
-    if (_scaledVol < audioThreshold) {
+    if (_scaledVol < audioThresholdLevel) {
         th = true;
     }
 
@@ -292,21 +429,30 @@ void ofApp::midiOutputInformation() {
     ofPushStyle();
     ofPushMatrix();
 
-    ofTranslate(500, 170);
+    ofTranslate(20, 190);
 
     string _v = ofToString(ofMap(scaledVol, 0.0, 1, 0, 127), 0);
-    ofDrawBitmapString("Main Volume / MIDI CH : 1 / Ctrl Nr : 20 / " + _v, 0, 0);
+    ofDrawBitmapString("Main Volume / CH : 1 / Ctrl Nr : 20 / " + _v, 0, 0);
 
-    ofTranslate(0, 160);
+
 
     string _vB = ofToString(ofMap(scaledBaseVol, 0.0, 1, 0, 127), 0);
-    ofDrawBitmapString("Base Volume / MIDI CH : 1 / Ctrl Nr : 21 / " + _vB, 0, -40);
+    ofDrawBitmapString("Base Volume / CH : 1 / Ctrl Nr : 21 / " + _vB, 0, 190);
 
     string _vM = ofToString(ofMap(scaledMiddleVol, 0.0, 1, 0, 127), 0);
-    ofDrawBitmapString("Mid Volume  / MIDI CH : 1 / Ctrl Nr : 22 / " + _vM, 0, -20);
+    ofDrawBitmapString("Mid Volume  / CH : 1 / Ctrl Nr : 22 / " + _vM, 0, 210);
 
     string _vH = ofToString(ofMap(scaledHighVol, 0.0, 1, 0, 127), 0);
-    ofDrawBitmapString("High Volume / MIDI CH : 1 / Ctrl Nr : 23 / " + _vH, 0, 0);
+    ofDrawBitmapString("High Volume / CH : 1 / Ctrl Nr : 23 / " + _vH, 0, 230);
+
+
+
+    ofDrawBitmapString("Select Midi Port: " + selectMidiName, 0, 260);
+
+    for (int i = 0; i < midiPort.size(); i++) {
+        ofDrawBitmapString("All Midi Port: " + midiPort[i], 0, i * 20 + 260);
+    }
+
 
     ofPopMatrix();
     ofPopStyle();
@@ -321,20 +467,26 @@ void ofApp::textView(int _index) {
     ofPushStyle();
     ofPushMatrix();
 
-    ofTranslate(500, ofGetHeight() - 150);
+    ofTranslate(500, ofGetHeight() - 250);
 
-    ofDrawBitmapString("Sample Text", 0, 0);
-    ofDrawBitmapString(sampleText, 0, 20);
 
-    ofDrawBitmapString("Audio Trigger Sequence Text", 0, 55);
-    verdana30.drawString(sampleTextVector[_index % sampleTextVector.size()], 0, 100);
+    // ofDrawBitmapString("Audio Trigger Sequence Text", 0, 55);
+    // verdana30.drawString(textWords[_index % textWords.size()], 0, 100);
 
     ofPopMatrix();
     ofPopStyle();
 
     ofPushStyle();
-    ofDrawBitmapString("/ Tex Count : " + ofToString(scaleVolCounter(scaledVol) % sampleTextVector.size(), 0), 100, 0);
+    // ofDrawBitmapString("/ Tex Count : " + ofToString(scaleVolCounter(scaledVol) % textWords.size(), 0), 100, 0);
     ofPopStyle();
+
+
+    // for (int i = 0; i < seussLines.size(); i++) {
+    //     string typedLine = seussLines[i];
+    //     ofSetColor(255);
+    //     ofDrawBitmapString(typedLine, 10, i * 20 + 600);
+    // }
+
 
 }
 
@@ -356,7 +508,7 @@ void ofApp:: audioInputInfo(float _h, vector<float> & _v) {
     ofNoFill();
     ofDrawRectangle(260, 150, 20, -70);
     ofSetColor(255, 0, 0);
-    ofDrawLine(260, 150 - 70 * audioThreshold, 280, 150 - 70 * audioThreshold);
+    ofDrawLine(260, 150 - 70 * audioThresholdLevel, 280, 150 - 70 * audioThresholdLevel);
 
 
     ofFill();
@@ -371,13 +523,44 @@ void ofApp:: audioInputInfo(float _h, vector<float> & _v) {
     ofEndShape(false);
 
 
-    ofDrawBitmapString(ofToString(ofGetFrameRate(), 1), 0, 0);
+    // ofDrawBitmapString(ofToString(ofGetFrameRate(), 1), 0, 0);
 
     ofPopMatrix();
     ofPopStyle();
 
 }
 
+
+//--------------------------------------------------------------
+void ofApp::drawEqPlot(float* array, int length, float scale, float offset) {
+
+    ofPushMatrix();
+
+    ofTranslate( 20, 220 );
+
+    // glTranslatef(fft->getBinSize(), 0, 0);
+    // ofDrawBitmapString("EQd FFT Output", 0, 0);
+
+    ofNoFill();
+    ofDrawRectangle(0, 0, length, plotHeight);
+    glPushMatrix();
+    glTranslatef(0, plotHeight / 2 + offset, 0);
+    ofBeginShape();
+    for (int i = 0; i < length; i++) {
+        ofVertex(i, array[i] * scale);
+    }
+    ofEndShape();
+    glPopMatrix();
+
+    ofTranslate( length + 10, 0 );
+
+    ofDrawRectangle(0, plotHeight, 10, -scaledBaseVol * plotHeight);
+    ofDrawRectangle(15, plotHeight, 10, -scaledMiddleVol * plotHeight);
+    ofDrawRectangle(2 * 15, plotHeight, 10, -scaledHighVol * plotHeight);
+
+
+    ofPopMatrix();
+}
 
 
 
@@ -389,8 +572,8 @@ void ofApp::audioIn(ofSoundBuffer & input) {
     int numCounted = 0;
 
     for (size_t i = 0; i < input.getNumFrames(); i++) {
-        left[i]     = input[i * 2] * 0.5;
-        right[i]    = input[i * 2 + 1] * 0.5;
+        left[i]     = input[i * 2] * volumeInput;
+        right[i]    = input[i * 2 + 1] * volumeInput;
 
         curVol += left[i] * left[i];
         curVol += right[i] * right[i];
@@ -417,6 +600,7 @@ void ofApp::audioIn(ofSoundBuffer & input) {
 
 
     smoothedBaseVol *= 0.93;
+<<<<<<< HEAD
     smoothedBaseVol += 0.07 * getSmoothedVol(eqOutput, 0, 10);
 
     smoothedMiddleVol *= 0.93;
@@ -424,6 +608,17 @@ void ofApp::audioIn(ofSoundBuffer & input) {
 
     smoothedHighVol *= 0.93;
     smoothedHighVol += 0.07 * getSmoothedVol(eqOutput, 80, 257);
+=======
+    smoothedBaseVol += 0.07 * getSmoothedVol(eqOutput, 0, 4);
+
+    smoothedMiddleVol *= 0.93;
+    smoothedMiddleVol += 0.07 * getSmoothedVol(eqOutput, 4, 10);
+
+    smoothedHighVol *= 0.93;
+    smoothedHighVol += 0.07 * getSmoothedVol(eqOutput, 10, 40);
+
+
+>>>>>>> basic-midi
 
 
     fft->setPolar(eqOutput, fft->getPhase());
@@ -453,15 +648,34 @@ float ofApp::getSmoothedVol(float * _in, int _s, int _e) {
 
 
 
+//--------------------------------------------------------------
+float ofApp::getSmoothedVol(float * _in, int _s, int _e) {
+
+    float _allMiddleVol = 0;
+    int _numMiddleCounted = 0;
+    for (int i = _s; i < _e; i++) {
+        _allMiddleVol += _in[i];
+        _numMiddleCounted += 1;
+    }
+    _allMiddleVol /= (float)_numMiddleCounted;
+    _allMiddleVol = sqrt( _allMiddleVol );
+    return _allMiddleVol;
+
+}
+
+
+
+
 
 //--------------------------------------------------------------
 void ofApp::keyPressed  (int key) {
     if ( key == 's' ) {
         soundStream.start();
-    }
-
-    if ( key == 'e' ) {
+    } else if ( key == 'e' ) {
         soundStream.stop();
+    } else if (key == ' ') {
+        lineMovingOnOff = true;
+        lineColor.setHsb( ofRandom(255), 255, 255 );
     }
 }
 
@@ -480,6 +694,9 @@ void ofApp::mouseMoved(int x, int y ) {
 
 //--------------------------------------------------------------
 void ofApp::mouseDragged(int x, int y, int button) {
+
+    // float volume = ofMap(ofGetMouseX(), 0, ofGetWidth(), 0, 127);
+    // midiOut.sendControlChange(1, 7, volume);
 
 }
 
@@ -518,3 +735,16 @@ void ofApp::dragEvent(ofDragInfo dragInfo) {
 
 }
 
+
+
+//--------------------------------------------------------------
+void ofApp::setupGui() {
+
+    gui.setup();
+    gui.setPosition(ofGetWidth() - 250, 10);
+
+    gui.add(frameRate.setup("FPS", " "));
+    gui.add(volumeInput.setup("Input Gain", 0.75, 0, 1.0));
+    gui.add(audioThresholdLevel.setup("Audio Threshold", 0.5, 0.01, 1.0));
+
+}
