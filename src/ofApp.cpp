@@ -22,21 +22,14 @@ void ofApp::setup() {
     switchOn = false;
 
     for (int i = 0; i < 30; i++) {
-        ofTrueTypeFont _t;
-        _t.load( "verdana.ttf", (int)ofRandom(7, 24) );
-        alphabetFont.push_back(_t);
-    }
-
-    for (int i = 0; i < 30; i++) {
         ofTrueTypeFont _f;
         _f.load( "verdana.ttf", (int)ofRandom(7, 24) );
+        alphabetFont.push_back(_f);
         TextParticle _t = TextParticle( ofVec3f(621, 556, 0.0), alphabetFont[i] );
         textParticles.push_back(_t);
         _t = TextParticle( ofVec3f(778, 556, 0.0), alphabetFont[i] );
         textParticles.push_back(_t);
     }
-
-
 
 
     palast_trans.load("palast_trans.png");
@@ -56,13 +49,23 @@ void ofApp::setup() {
         }
     }
 
-
-
     textWords = getStringVector("DerBluePunktImAll.txt");
 
 
-    soundStream.printDeviceList();
+    midiOut.listOutPorts();
+    midiPort = midiOut.getOutPortList();
+    for (int i = 0; i < midiPort.size(); i++) {
+        cout << midiPort[i] << endl;
+        if (midiPort[i].at(0) == 'I' && midiPort[i].at(1) == 'A' && midiPort[i].at(2) == 'C') {
+            selectMidiPort =  i;
+        }
+    }
+    midiOut.openPort(0);
+    selectMidiName = midiPort[selectMidiPort];
 
+
+
+    soundStream.printDeviceList();
 
     int bufferSize = 512;
 
@@ -75,23 +78,8 @@ void ofApp::setup() {
     smoothedVol = 0.0;
     scaledVol = 0.0;
     audioThreshold = 0.7;
-
     smoothedBaseVol = 0.0;
     scaledBaseVol = 0.0;
-
-
-    midiOut.listOutPorts();
-    midiPort = midiOut.getOutPortList();
-    for (int i = 0; i < midiPort.size(); i++) {
-        cout << midiPort[i] << endl;
-        if (midiPort[i].at(0) == 'I' && midiPort[i].at(1) == 'A' && midiPort[i].at(2) == 'C') {
-            selectMidiPort =  i;
-        }
-    }
-    cout << selectMidiPort << endl;
-    midiOut.openPort(0);
-    selectMidiName = midiPort[selectMidiPort];
-
 
     ofSoundStreamSettings settings;
     auto devices = soundStream.getMatchingDevices("default");
@@ -200,7 +188,6 @@ void ofApp::update() {
     if (scaleVolThresholdOn(scaledVol) && switchOn == false) {
         switchOn = true;
         for (int i = 0; i < 30; i++) {
-            // alphabetFont.load( "verdana.ttf", (int)ofRandom(7, 24) );
             if (ofRandom(1) < 0.5) {
                 TextParticle _t = TextParticle( ofVec3f(621, 556, 0.0), alphabetFont[i] );
                 textParticles.push_back(_t);
@@ -334,11 +321,6 @@ void ofApp::draw() {
 
 
 }
-
-
-
-
-
 
 
 
