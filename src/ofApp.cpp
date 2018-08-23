@@ -259,7 +259,7 @@ void ofApp::scaleVolChange() {
 void ofApp::midiOutScaleChange() {
 
     if (scaledVol > 0.1) {
-        midiOut.sendControlChange(1, 20, int(ofMap(scaledVol, 0.1, 1, -24, 24)));
+        midiOut.sendControlChange(1, 20, int(ofMap(scaledVol, 0.1, 1, 0, 127)));
     }
     if (scaledBaseVol > 0.1) {
         midiOut.sendControlChange(1, 21, ofMap(scaledBaseVol, 0.1, 1, 0, 127));
