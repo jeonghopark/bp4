@@ -8,6 +8,8 @@ void ofApp::setup() {
     ofSetCircleResolution(80);
     ofBackground(54, 54, 54);
 
+    
+    setupGui();
 
 
     ofBuffer _buffer = ofBufferFromFile("DerBluePunktImAll.txt");
@@ -223,6 +225,8 @@ void ofApp::draw() {
     // midiOut.sendControlChange(1, 7, int(_midiS));
     // ofDrawBitmapString(int(_midiS), 700, 20);
 
+
+    gui.draw();
 
 
 }
@@ -458,8 +462,8 @@ void ofApp::audioIn(ofSoundBuffer & input) {
     int numCounted = 0;
 
     for (size_t i = 0; i < input.getNumFrames(); i++) {
-        left[i]     = input[i * 2] * 0.5;
-        right[i]    = input[i * 2 + 1] * 0.5;
+        left[i]     = input[i * 2] * volumeInput;
+        right[i]    = input[i * 2 + 1] * volumeInput;
 
         curVol += left[i] * left[i];
         curVol += right[i] * right[i];
@@ -591,3 +595,14 @@ void ofApp::dragEvent(ofDragInfo dragInfo) {
 
 }
 
+
+
+//--------------------------------------------------------------
+void ofApp::setupGui() {
+
+    gui.setup();
+    gui.setPosition(ofGetWidth() - 250, 10);
+
+    gui.add(volumeInput.setup("Input Gain", 0.5, 0, 1.0));
+
+}

@@ -1,5 +1,3 @@
-
-
 #include "ofMain.h"
 #include "ofxMidi.h"
 #include "ofxFft.h"
@@ -110,7 +108,9 @@ public:
     vector<string> textWords;
 
 
+    void setupGui();
     ofxPanel gui;
+    ofxFloatSlider volumeInput;
 
     float testMidiSignal;
 
