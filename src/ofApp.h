@@ -1,8 +1,7 @@
-
-
 #include "ofMain.h"
 #include "ofxMidi.h"
 #include "ofxFft.h"
+#include "ofxGui.h"
 
 
 class ofApp : public ofBaseApp {
@@ -49,8 +48,6 @@ public:
 
     ofSoundStream soundStream;
 
-    string sampleText;
-    vector<string> sampleTextVector;
     void audioInputInfo(float _h, vector<float> & _v);  
     vector<float> & volHistoryGenerator(float _h);
 
@@ -76,7 +73,9 @@ public:
 
 
     void midiOutputInformation();
-
+    vector<string> midiPort;
+    int selectMidiPort;
+    string selectMidiName;
 
     int plotHeight, bufferSize;
 
@@ -102,5 +101,17 @@ public:
 
     void scaleVolChange();
     void midiOutScaleChange();
+
+
+    vector<string> getStringVector(string fileName);
+    vector<string> seussLines;
+    vector<string> textWords;
+
+
+    void setupGui();
+    ofxPanel gui;
+    ofxFloatSlider volumeInput;
+
+    float testMidiSignal;
 
 };
