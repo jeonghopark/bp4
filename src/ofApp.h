@@ -28,10 +28,6 @@ public:
 
     void audioIn(ofSoundBuffer & input);
     float getSmoothedVol(float * _in, int _s, int _e);
-<<<<<<< HEAD
-=======
-
->>>>>>> basic-midi
 
     vector <float> left;
     vector <float> right;

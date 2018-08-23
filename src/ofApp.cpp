@@ -281,12 +281,7 @@ void ofApp::midiOutScaleChange() {
 void ofApp::draw() {
 
 
-<<<<<<< HEAD
-
-    textView(scaleVolCounter(scaledVol));
-=======
     palast_playzone.draw(0, 0, ofGetWidth(), ofGetHeight());
->>>>>>> basic-midi
 
     for (int i = 0; i < textParticles.size(); ++i) {
         textParticles[i].draw();
@@ -304,13 +299,10 @@ void ofApp::draw() {
 
     midiOutScaleChange();
 
-<<<<<<< HEAD
-=======
     midiOutputInformation();
 
     drawEqPlot(eqOutput, fft->getBinSize(), -plotHeight, plotHeight / 2);
 
->>>>>>> basic-midi
     // if (scaleVolThresholdOn(scaledVol)) {
     //  oldNote = scaleVolCounter(scaledVol);
     //  midiOut.sendNoteOn(1, scaleVolCounter(scaledVol) + 64,  100);
@@ -319,33 +311,16 @@ void ofApp::draw() {
     //  midiOut.sendNoteOff(1, oldNote + 64,  100);
     // }
 
-<<<<<<< HEAD
-}
-
-
-=======
 
     // testMidiSignal += 0.1;
     // float _midiS = ofMap(int(testMidiSignal) % 127, 0, 127, 0, 7);
     // midiOut.sendControlChange(1, 7, int(_midiS));
     // ofDrawBitmapString(int(_midiS), 700, 20);
->>>>>>> basic-midi
 
 
     gui.draw();
 
 
-<<<<<<< HEAD
-    ofTranslate( length + 10, 0 );
-
-    ofDrawRectangle(0, plotHeight, 10, -scaledBaseVol * plotHeight);
-    ofDrawRectangle(15, plotHeight, 10, -scaledMiddleVol * plotHeight);
-    ofDrawRectangle(2 * 15, plotHeight, 10, -scaledHighVol * plotHeight);
-
-    ofPopMatrix();
-
-=======
->>>>>>> basic-midi
 }
 
 
@@ -600,15 +575,6 @@ void ofApp::audioIn(ofSoundBuffer & input) {
 
 
     smoothedBaseVol *= 0.93;
-<<<<<<< HEAD
-    smoothedBaseVol += 0.07 * getSmoothedVol(eqOutput, 0, 10);
-
-    smoothedMiddleVol *= 0.93;
-    smoothedMiddleVol += 0.07 * getSmoothedVol(eqOutput, 20, 80);
-
-    smoothedHighVol *= 0.93;
-    smoothedHighVol += 0.07 * getSmoothedVol(eqOutput, 80, 257);
-=======
     smoothedBaseVol += 0.07 * getSmoothedVol(eqOutput, 0, 4);
 
     smoothedMiddleVol *= 0.93;
@@ -618,7 +584,6 @@ void ofApp::audioIn(ofSoundBuffer & input) {
     smoothedHighVol += 0.07 * getSmoothedVol(eqOutput, 10, 40);
 
 
->>>>>>> basic-midi
 
 
     fft->setPolar(eqOutput, fft->getPhase());
@@ -628,23 +593,6 @@ void ofApp::audioIn(ofSoundBuffer & input) {
 
 }
 
-
-
-
-//--------------------------------------------------------------
-float ofApp::getSmoothedVol(float * _in, int _s, int _e) {
-
-    float _allMiddleVol = 0;
-    int _numMiddleCounted = 0;
-    for (int i = _s; i < _e; i++) {
-        _allMiddleVol += _in[i];
-        _numMiddleCounted += 1;
-    }
-    _allMiddleVol /= (float)_numMiddleCounted;
-    _allMiddleVol = sqrt( _allMiddleVol );
-    return _allMiddleVol;
-
-}
 
 
 
