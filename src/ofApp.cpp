@@ -425,7 +425,7 @@ void ofApp::midiOutputInformation() {
     ofDrawBitmapString("Select Midi Port: " + selectMidiName, 0, 260);
 
     for (int i = 0; i < midiPort.size(); i++) {
-        ofDrawBitmapString("All Midi Port: " + midiPort[i], 0, i * 20 + 260);
+        ofDrawBitmapString("All Midi Port: " + midiPort[i], 0, i * 20 + 280);
     }
 
 
