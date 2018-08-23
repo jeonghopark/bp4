@@ -8,8 +8,14 @@ void ofApp::setup() {
     ofSetCircleResolution(80);
     ofBackground(54, 54, 54);
 
-    
+    fullscreenRatio = 1.33333;    
     setupGui();
+
+    palast_trans.load("palast_trans.png");
+    palast_trans_all.load("palast_trans_all.png");
+    palast_black_windows.load("palast_black_windows.png");
+    palast_playzone.load("palast_playzone.png");
+
 
 
     ofBuffer _buffer = ofBufferFromFile("DerBluePunktImAll.txt");
@@ -143,6 +149,8 @@ void ofApp::update() {
 
     scaleVolChange();
 
+    frameRate = ofToString(ofGetFrameRate(), 1);
+
 }
 
 
@@ -200,6 +208,16 @@ void ofApp::midiOutScaleChange() {
 
 //--------------------------------------------------------------
 void ofApp::draw() {
+
+
+    palast_playzone.draw(0, 0, ofGetWidth(), ofGetHeight());
+
+    ofDrawRectangle(ofGetMouseX(), ofGetMouseY(), 100, 100);
+
+    // palast_trans.draw(0, 0, ofGetWidth(), ofGetHeight());
+    palast_trans_all.draw(0, 0, ofGetWidth(), ofGetHeight());
+    palast_black_windows.draw(0, 0, ofGetWidth(), ofGetHeight());
+
 
     audioInputInfo(scaledVol, volHistoryGenerator(scaledVol));
 
@@ -444,7 +462,7 @@ void ofApp:: audioInputInfo(float _h, vector<float> & _v) {
     ofEndShape(false);
 
 
-    ofDrawBitmapString(ofToString(ofGetFrameRate(), 1), 0, 0);
+    // ofDrawBitmapString(ofToString(ofGetFrameRate(), 1), 0, 0);
 
     ofPopMatrix();
     ofPopStyle();
@@ -603,6 +621,7 @@ void ofApp::setupGui() {
     gui.setup();
     gui.setPosition(ofGetWidth() - 250, 10);
 
-    gui.add(volumeInput.setup("Input Gain", 0.5, 0, 1.0));
+    gui.add(frameRate.setup("FPS", " "));
+    gui.add(volumeInput.setup("Input Gain", 0.75, 0, 1.0));
 
 }

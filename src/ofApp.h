@@ -110,8 +110,16 @@ public:
 
     void setupGui();
     ofxPanel gui;
+    ofxLabel frameRate;
     ofxFloatSlider volumeInput;
 
     float testMidiSignal;
+
+
+    float fullscreenRatio;
+    ofImage palast_trans;
+    ofImage palast_trans_all;
+    ofImage palast_black_windows;
+    ofImage palast_playzone;
 
 };
