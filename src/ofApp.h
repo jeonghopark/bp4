@@ -3,6 +3,8 @@
 #include "ofxFft.h"
 #include "ofxGui.h"
 
+#include "TextParticle.h"
+
 
 class ofApp : public ofBaseApp {
 
@@ -48,13 +50,16 @@ public:
 
     ofSoundStream soundStream;
 
-    void audioInputInfo(float _h, vector<float> & _v);  
+    void audioInputInfo(float _h, vector<float> & _v);
     vector<float> & volHistoryGenerator(float _h);
 
     ofTrueTypeFont verdana30;
 
     int scaleVolCounter(float _scaledVol);
+
     bool scaleVolThresholdOn(float _scaledVol);
+    bool switchOn;
+
     bool scaleVolThresholdOff(float _scaledVol);
     void textView(int _index);
 
@@ -62,7 +67,7 @@ public:
 
     ofxMidiOut midiOut;
     int channel;
-    
+
     unsigned int currentPgm;
     int note, velocity;
     int pan, bend, touch, polytouch;
@@ -112,14 +117,29 @@ public:
     ofxPanel gui;
     ofxLabel frameRate;
     ofxFloatSlider volumeInput;
+    ofxFloatSlider audioThresholdLevel;
+
 
     float testMidiSignal;
 
 
     float fullscreenRatio;
+
+
     ofImage palast_trans;
     ofImage palast_trans_all;
     ofImage palast_black_windows;
     ofImage palast_playzone;
+
+
+    vector<TextParticle> textParticles;
+    vector<ofTrueTypeFont> alphabetFont;
+    vector<ofTrueTypeFont> alphabetFonts;
+    string alphabet;
+
+    int lineMoving;
+    bool lineMovingOnOff;
+    ofColor lineColor;
+
 
 };

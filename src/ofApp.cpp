@@ -4,12 +4,40 @@
 //--------------------------------------------------------------
 void ofApp::setup() {
 
+#ifdef DEBUG
+
+#else
+    ofSetDataPathRoot("../Resources/data");
+#endif
+
+
     ofSetVerticalSync(true);
     ofSetCircleResolution(80);
+
     ofBackground(54, 54, 54);
 
-    fullscreenRatio = 1.33333;    
+    fullscreenRatio = 1.33333;
     setupGui();
+
+    switchOn = false;
+
+    for (int i = 0; i < 30; i++) {
+        ofTrueTypeFont _t;
+        _t.load( "verdana.ttf", (int)ofRandom(7, 24) );
+        alphabetFont.push_back(_t);
+    }
+
+    for (int i = 0; i < 30; i++) {
+        ofTrueTypeFont _f;
+        _f.load( "verdana.ttf", (int)ofRandom(7, 24) );
+        TextParticle _t = TextParticle( ofVec3f(621, 556, 0.0), alphabetFont[i] );
+        textParticles.push_back(_t);
+        _t = TextParticle( ofVec3f(778, 556, 0.0), alphabetFont[i] );
+        textParticles.push_back(_t);
+    }
+
+
+
 
     palast_trans.load("palast_trans.png");
     palast_trans_all.load("palast_trans_all.png");
@@ -143,6 +171,13 @@ vector<string> ofApp::getStringVector(string fileName) {
 
 
 
+//--------------------------------------------------------------
+bool shouldRemove(TextParticle &p) {
+    if (p.position.y < 0 ) return true;
+    else return false;
+}
+
+
 
 //--------------------------------------------------------------
 void ofApp::update() {
@@ -150,6 +185,52 @@ void ofApp::update() {
     scaleVolChange();
 
     frameRate = ofToString(ofGetFrameRate(), 1);
+
+
+    for (int i = 0; i < textParticles.size(); ++i) {
+        textParticles[i].update();
+    }
+
+    ofRemove(textParticles, shouldRemove);
+
+    if (lineMovingOnOff) {
+        lineMoving += 7;
+    }
+
+    if (scaleVolThresholdOn(scaledVol) && switchOn == false) {
+        switchOn = true;
+        for (int i = 0; i < 30; i++) {
+            // alphabetFont.load( "verdana.ttf", (int)ofRandom(7, 24) );
+            if (ofRandom(1) < 0.5) {
+                TextParticle _t = TextParticle( ofVec3f(621, 556, 0.0), alphabetFont[i] );
+                textParticles.push_back(_t);
+            } else {
+                TextParticle _t = TextParticle( ofVec3f(778, 556, 0.0), alphabetFont[i] );
+                textParticles.push_back(_t);
+            }
+        }
+
+    } else {
+        switchOn = false;
+    }
+
+    // if (lineMoving > 282) {
+    //     lineMovingOnOff = false;
+    //     lineMoving = 0;
+
+    //     for (int i = 0; i < 30; i++) {
+    //         // alphabetFont.load( "verdana.ttf", (int)ofRandom(7, 24) );
+    //         if (ofRandom(1) < 0.5) {
+    //             TextParticle _t = TextParticle( ofVec3f(621, 556, 0.0), alphabetFont[i] );
+    //             textParticles.push_back(_t);
+    //         } else {
+    //             TextParticle _t = TextParticle( ofVec3f(778, 556, 0.0), alphabetFont[i] );
+    //             textParticles.push_back(_t);
+    //         }
+    //     }
+
+    // }
+
 
 }
 
@@ -212,7 +293,10 @@ void ofApp::draw() {
 
     palast_playzone.draw(0, 0, ofGetWidth(), ofGetHeight());
 
-    ofDrawRectangle(ofGetMouseX(), ofGetMouseY(), 100, 100);
+    for (int i = 0; i < textParticles.size(); ++i) {
+        textParticles[i].draw();
+    }
+
 
     // palast_trans.draw(0, 0, ofGetWidth(), ofGetHeight());
     palast_trans_all.draw(0, 0, ofGetWidth(), ofGetHeight());
@@ -252,36 +336,7 @@ void ofApp::draw() {
 
 
 
-//--------------------------------------------------------------
-void ofApp::drawEqPlot(float* array, int length, float scale, float offset) {
 
-    ofPushMatrix();
-
-    ofTranslate( 20, 200 );
-
-    // glTranslatef(fft->getBinSize(), 0, 0);
-    // ofDrawBitmapString("EQd FFT Output", 0, 0);
-
-    ofNoFill();
-    ofDrawRectangle(0, 0, length, plotHeight);
-    glPushMatrix();
-    glTranslatef(0, plotHeight / 2 + offset, 0);
-    ofBeginShape();
-    for (int i = 0; i < length; i++) {
-        ofVertex(i, array[i] * scale);
-    }
-    ofEndShape();
-    glPopMatrix();
-
-    ofTranslate( length + 10, 0 );
-
-    ofDrawRectangle(0, plotHeight, 10, -scaledBaseVol * plotHeight);
-    ofDrawRectangle(15, plotHeight, 10, -scaledMiddleVol * plotHeight);
-    ofDrawRectangle(2 * 15, plotHeight, 10, -scaledHighVol * plotHeight);
-
-
-    ofPopMatrix();
-}
 
 
 
@@ -305,18 +360,18 @@ bool ofApp::noteOff() {
 //--------------------------------------------------------------
 bool ofApp::scaleVolThresholdOn(float _scaledVol) {
 
-    static bool th = false;
+    // static bool th = false;
 
-    if (_scaledVol > audioThreshold && !th) {
-        th = true;
+    if (_scaledVol > audioThresholdLevel) {
+        // th = true;
         return true;
     }
 
-    if (_scaledVol < audioThreshold) {
-        th = false;
+    if (_scaledVol < audioThresholdLevel) {
+        // th = false;
+        return false;
     }
 
-    return false;
 
 }
 
@@ -325,18 +380,18 @@ bool ofApp::scaleVolThresholdOn(float _scaledVol) {
 //--------------------------------------------------------------
 bool ofApp::scaleVolThresholdOff(float _scaledVol) {
 
-    static bool th = false;
+    // static bool th = false;
 
-    if (_scaledVol < 0.3 && !th) {
-        th = true;
-        return true;
-    }
+    // if (_scaledVol < 0.3 && !th) {
+    //     th = true;
+    //     return true;
+    // }
 
-    if (_scaledVol > audioThreshold) {
-        th = false;
-    }
+    // if (_scaledVol > audioThreshold) {
+    //     th = false;
+    // }
 
-    return false;
+    // return false;
 
 }
 
@@ -349,12 +404,12 @@ int ofApp::scaleVolCounter(float _scaledVol) {
     static int count = 0;
     static bool th = false;
 
-    if (_scaledVol > audioThreshold && th) {
+    if (_scaledVol > audioThresholdLevel && th) {
         count += 1;
         th = false;
     }
 
-    if (_scaledVol < audioThreshold) {
+    if (_scaledVol < audioThresholdLevel) {
         th = true;
     }
 
@@ -371,32 +426,33 @@ void ofApp::midiOutputInformation() {
     ofPushStyle();
     ofPushMatrix();
 
-    ofTranslate(500, 170);
+    ofTranslate(20, 190);
 
     string _v = ofToString(ofMap(scaledVol, 0.0, 1, 0, 127), 0);
-    ofDrawBitmapString("Main Volume / MIDI CH : 1 / Ctrl Nr : 20 / " + _v, 0, 0);
+    ofDrawBitmapString("Main Volume / CH : 1 / Ctrl Nr : 20 / " + _v, 0, 0);
 
-    ofTranslate(0, 160);
+
 
     string _vB = ofToString(ofMap(scaledBaseVol, 0.0, 1, 0, 127), 0);
-    ofDrawBitmapString("Base Volume / MIDI CH : 1 / Ctrl Nr : 21 / " + _vB, 0, -40);
+    ofDrawBitmapString("Base Volume / CH : 1 / Ctrl Nr : 21 / " + _vB, 0, 190);
 
     string _vM = ofToString(ofMap(scaledMiddleVol, 0.0, 1, 0, 127), 0);
-    ofDrawBitmapString("Mid Volume  / MIDI CH : 1 / Ctrl Nr : 22 / " + _vM, 0, -20);
+    ofDrawBitmapString("Mid Volume  / CH : 1 / Ctrl Nr : 22 / " + _vM, 0, 210);
 
     string _vH = ofToString(ofMap(scaledHighVol, 0.0, 1, 0, 127), 0);
-    ofDrawBitmapString("High Volume / MIDI CH : 1 / Ctrl Nr : 23 / " + _vH, 0, 0);
+    ofDrawBitmapString("High Volume / CH : 1 / Ctrl Nr : 23 / " + _vH, 0, 230);
+
+
+
+    ofDrawBitmapString("Select Midi Port: " + selectMidiName, 0, 260);
+
+    for (int i = 0; i < midiPort.size(); i++) {
+        ofDrawBitmapString("All Midi Port: " + midiPort[i], 0, i * 20 + 260);
+    }
+
 
     ofPopMatrix();
     ofPopStyle();
-
-
-    ofDrawBitmapString("Select Midi Port: " + selectMidiName, 200, 20);
-
-    for (int i = 0; i < midiPort.size(); i++) {
-        ofDrawBitmapString("All Midi Port: " + midiPort[i], 500, i * 20 + 20);
-    }
-
 
 }
 
@@ -447,7 +503,7 @@ void ofApp:: audioInputInfo(float _h, vector<float> & _v) {
     ofNoFill();
     ofDrawRectangle(260, 150, 20, -70);
     ofSetColor(255, 0, 0);
-    ofDrawLine(260, 150 - 70 * audioThreshold, 280, 150 - 70 * audioThreshold);
+    ofDrawLine(260, 150 - 70 * audioThresholdLevel, 280, 150 - 70 * audioThresholdLevel);
 
 
     ofFill();
@@ -469,6 +525,37 @@ void ofApp:: audioInputInfo(float _h, vector<float> & _v) {
 
 }
 
+
+//--------------------------------------------------------------
+void ofApp::drawEqPlot(float* array, int length, float scale, float offset) {
+
+    ofPushMatrix();
+
+    ofTranslate( 20, 220 );
+
+    // glTranslatef(fft->getBinSize(), 0, 0);
+    // ofDrawBitmapString("EQd FFT Output", 0, 0);
+
+    ofNoFill();
+    ofDrawRectangle(0, 0, length, plotHeight);
+    glPushMatrix();
+    glTranslatef(0, plotHeight / 2 + offset, 0);
+    ofBeginShape();
+    for (int i = 0; i < length; i++) {
+        ofVertex(i, array[i] * scale);
+    }
+    ofEndShape();
+    glPopMatrix();
+
+    ofTranslate( length + 10, 0 );
+
+    ofDrawRectangle(0, plotHeight, 10, -scaledBaseVol * plotHeight);
+    ofDrawRectangle(15, plotHeight, 10, -scaledMiddleVol * plotHeight);
+    ofDrawRectangle(2 * 15, plotHeight, 10, -scaledHighVol * plotHeight);
+
+
+    ofPopMatrix();
+}
 
 
 
@@ -508,13 +595,13 @@ void ofApp::audioIn(ofSoundBuffer & input) {
 
 
     smoothedBaseVol *= 0.93;
-    smoothedBaseVol += 0.07 * getSmoothedVol(eqOutput, 0, 10);
+    smoothedBaseVol += 0.07 * getSmoothedVol(eqOutput, 0, 4);
 
     smoothedMiddleVol *= 0.93;
-    smoothedMiddleVol += 0.07 * getSmoothedVol(eqOutput, 20, 80);
+    smoothedMiddleVol += 0.07 * getSmoothedVol(eqOutput, 4, 10);
 
     smoothedHighVol *= 0.93;
-    smoothedHighVol += 0.07 * getSmoothedVol(eqOutput, 80, 257);
+    smoothedHighVol += 0.07 * getSmoothedVol(eqOutput, 10, 40);
 
 
 
@@ -550,10 +637,11 @@ float ofApp::getSmoothedVol(float * _in, int _s, int _e) {
 void ofApp::keyPressed  (int key) {
     if ( key == 's' ) {
         soundStream.start();
-    }
-
-    if ( key == 'e' ) {
+    } else if ( key == 'e' ) {
         soundStream.stop();
+    } else if (key == ' ') {
+        lineMovingOnOff = true;
+        lineColor.setHsb( ofRandom(255), 255, 255 );
     }
 }
 
@@ -623,5 +711,6 @@ void ofApp::setupGui() {
 
     gui.add(frameRate.setup("FPS", " "));
     gui.add(volumeInput.setup("Input Gain", 0.75, 0, 1.0));
+    gui.add(audioThresholdLevel.setup("Audio Threshold", 0.8, 0, 1.0));
 
 }
