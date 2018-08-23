@@ -4,7 +4,24 @@
 TextParticle::TextParticle(ofVec3f _v, ofTrueTypeFont _t) {
 
     position = _v;
-    speed = ofVec3f(ofRandom(-0.5, 0.5), ofRandom(0.5, -2), ofRandom(0, 0));
+
+    
+    float _xRandom; 
+    if (ofRandom(1) < 0.5) {
+        _xRandom = ofRandom(-0.25, -0.75); 
+    } else {
+        _xRandom = ofRandom(0.25, 0.75); 
+    }
+
+    float _yRandom; 
+    if (ofRandom(1) < 0.5) {
+        _yRandom = ofRandom(-0.25, -2);
+    } else {
+        _yRandom = ofRandom(0.25, 0.75);
+    }
+
+
+    speed = ofVec3f(_xRandom, _yRandom, 0);
 
     alphabetString = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 

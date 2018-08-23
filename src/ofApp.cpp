@@ -209,10 +209,12 @@ void ofApp::update() {
                 textParticles.push_back(_t);
             }
         }
-
     } else {
         switchOn = false;
     }
+
+
+    // cout << textParticles.size() << endl;
 
     // if (lineMoving > 282) {
     //     lineMovingOnOff = false;
@@ -360,18 +362,11 @@ bool ofApp::noteOff() {
 //--------------------------------------------------------------
 bool ofApp::scaleVolThresholdOn(float _scaledVol) {
 
-    // static bool th = false;
-
     if (_scaledVol > audioThresholdLevel) {
-        // th = true;
         return true;
     }
 
-    if (_scaledVol < audioThresholdLevel) {
-        // th = false;
-        return false;
-    }
-
+    return false;
 
 }
 
@@ -391,7 +386,7 @@ bool ofApp::scaleVolThresholdOff(float _scaledVol) {
     //     th = false;
     // }
 
-    // return false;
+    return false;
 
 }
 
@@ -711,6 +706,6 @@ void ofApp::setupGui() {
 
     gui.add(frameRate.setup("FPS", " "));
     gui.add(volumeInput.setup("Input Gain", 0.75, 0, 1.0));
-    gui.add(audioThresholdLevel.setup("Audio Threshold", 0.8, 0, 1.0));
+    gui.add(audioThresholdLevel.setup("Audio Threshold", 0.5, 0.01, 1.0));
 
 }
