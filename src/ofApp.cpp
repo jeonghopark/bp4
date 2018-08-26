@@ -16,7 +16,7 @@ void ofApp::setup() {
 
     ofBackground(54, 54, 54);
 
-    fullscreenRatio = 1.33333;
+    fullscreenRatio = 1920 / 1440;
     setupGui();
 
     switchOn = false;
