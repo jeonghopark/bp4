@@ -15,9 +15,9 @@ TextParticle::TextParticle(ofVec3f _v, ofTrueTypeFont _t) {
 
     float _yRandom; 
     if (ofRandom(1) < 0.5) {
-        _yRandom = ofRandom(-0.25, -2);
+        _yRandom = ofRandom(-0.15, -2);
     } else {
-        _yRandom = ofRandom(0.25, 0.75);
+        _yRandom = ofRandom(0.15, 0.75);
     }
 
 
@@ -27,7 +27,7 @@ TextParticle::TextParticle(ofVec3f _v, ofTrueTypeFont _t) {
 
     stringIndex = (int)ofRandom(26);
 
-    size = (int)ofRandom(7, 24);
+    // size = (int)ofRandom(7, 46);
     c.setHsb( ofRandom(255), 255, 255 );
 
     alphabet = _t;

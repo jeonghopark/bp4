@@ -21,13 +21,13 @@ void ofApp::setup() {
 
     switchOn = false;
 
-    for (int i = 0; i < 30; i++) {
+    for (int i = 0; i < 20; i++) {
         ofTrueTypeFont _f;
-        _f.load( "verdana.ttf", (int)ofRandom(7, 24) );
+        _f.load( "verdana.ttf", (int)ofRandom(7, 136) );
         alphabetFont.push_back(_f);
-        TextParticle _t = TextParticle( ofVec3f(621, 556, 0.0), alphabetFont[i] );
+        TextParticle _t = TextParticle( ofVec3f(633, 615, 0.0), alphabetFont[i] );
         textParticles.push_back(_t);
-        _t = TextParticle( ofVec3f(778, 556, 0.0), alphabetFont[i] );
+        _t = TextParticle( ofVec3f(809, 615, 0.0), alphabetFont[i] );
         textParticles.push_back(_t);
     }
 
@@ -134,7 +134,7 @@ vector<string> ofApp::getStringVector(string fileName) {
     vector<string> _result;
 
     ofBuffer _bufferBound = ofBufferFromFile(fileName);
-    if (_bufferBound.size()) {
+    // if (_bufferBound.size()) {
 
         for (ofBuffer::Line it = _bufferBound.getLines().begin(), end = _bufferBound.getLines().end(); it != end; ++it) {
             string _s = *it;
@@ -151,7 +151,7 @@ vector<string> ofApp::getStringVector(string fileName) {
             }
         }
 
-    }
+    // }
 
     return _result;
 
@@ -188,19 +188,22 @@ void ofApp::update() {
 
     if (scaleVolThresholdOn(scaledVol) && switchOn == false) {
         switchOn = true;
-        for (int i = 0; i < 30; i++) {
+        for (int i = 0; i < 10; i++) {
             if (ofRandom(1) < 0.5) {
-                TextParticle _t = TextParticle( ofVec3f(621, 556, 0.0), alphabetFont[i] );
+                TextParticle _t = TextParticle( ofVec3f(633, 615, 0.0), alphabetFont[i] );
                 textParticles.push_back(_t);
             } else {
-                TextParticle _t = TextParticle( ofVec3f(778, 556, 0.0), alphabetFont[i] );
+                TextParticle _t = TextParticle( ofVec3f(809, 615, 0.0), alphabetFont[i] );
                 textParticles.push_back(_t);
             }
         }
     } else {
-        switchOn = false;
+        // switchOn = false;
     }
 
+    if (!scaleVolThresholdOn(scaledVol)) {
+        switchOn = false;
+    }
 
     // cout << textParticles.size() << endl;
 
@@ -281,7 +284,10 @@ void ofApp::midiOutScaleChange() {
 void ofApp::draw() {
 
 
+    ofPushStyle();
+    ofSetColor(180);
     palast_playzone.draw(0, 0, ofGetWidth(), ofGetHeight());
+    ofPopStyle();
 
     for (int i = 0; i < textParticles.size(); ++i) {
         textParticles[i].draw();
@@ -290,7 +296,11 @@ void ofApp::draw() {
 
     // palast_trans.draw(0, 0, ofGetWidth(), ofGetHeight());
     palast_trans_all.draw(0, 0, ofGetWidth(), ofGetHeight());
+
+    ofPushStyle();
+    ofSetColor(0);
     palast_black_windows.draw(0, 0, ofGetWidth(), ofGetHeight());
+    ofPopStyle();
 
 
     audioInputInfo(scaledVol, volHistoryGenerator(scaledVol));
