@@ -12,11 +12,12 @@ void ofApp::setup() {
 
 
     ofSetVerticalSync(true);
-    ofSetCircleResolution(80);
+    // ofSetCircleResolution(80);
+
+    fullscreenRatio = 1440 / 1920.0;
 
     ofBackground(54, 54, 54);
 
-    fullscreenRatio = 1920 / 1440;
     setupGui();
 
     switchOn = false;
@@ -32,10 +33,54 @@ void ofApp::setup() {
     }
 
 
-    palast_trans.load("palast_trans.png");
+    // palast_trans.load("palast_trans.png");
     palast_trans_all.load("palast_trans_all.png");
     palast_black_windows.load("palast_black_windows.png");
     palast_playzone.load("palast_playzone.png");
+    playgroundImg.load("palast_playzone_all.png");
+
+
+    playgroundMeshPixel.setMode(OF_PRIMITIVE_POINTS);
+    playgroundMeshPixel.enableColors();
+    for (int w = 0; w < playgroundImg.getWidth(); w += 3) {
+        for (int h = 0; h < playgroundImg.getHeight(); h += 3) {
+            ofColor c = playgroundImg.getColor(w, h);
+            if (c.a != 0) {
+                ofVec3f pos(w * fullscreenRatio, h * fullscreenRatio, 0.0);
+                playgroundMeshPixel.addVertex(pos);
+                playgroundMeshPixel.addColor(c);
+            }
+        }
+    }
+    playgroundMeshPixelBuff = playgroundMeshPixel;
+
+
+    playgroundMeshTri.setMode(OF_PRIMITIVE_TRIANGLES);
+    // playgroundMeshTri.enableIndices();
+    int _step = 20;
+    for (int h = 0; h < playgroundImg.getHeight(); h += _step) {
+        for (int w = 0; w < playgroundImg.getWidth(); w += _step) {
+            ofColor c = playgroundImg.getColor(w, h);
+            ofVec3f pos(w * fullscreenRatio, h * fullscreenRatio, 0.0);
+            playgroundMeshTri.addVertex(pos);
+            playgroundMeshTri.addColor(c);
+        }
+    }
+
+    int _w = playgroundImg.getWidth() / _step;
+    int _h = playgroundImg.getHeight() / _step;
+    for (int i = 0; i < _w - 1; i += 1) {
+        for (int j = 0; j < _h - 1; j += 1) {
+            playgroundMeshTri.addIndex(i + j * _w);
+            playgroundMeshTri.addIndex(i + 1 + j * _w);
+            playgroundMeshTri.addIndex(i + j * _w + _w);
+
+            playgroundMeshTri.addIndex(i + 1 + j * _w);
+            playgroundMeshTri.addIndex(i + 1 + j * _w + _w);
+            playgroundMeshTri.addIndex(i + j * _w + _w);
+        }
+    }
+    playgroundMeshTriBuff = playgroundMeshTri;
 
 
 
@@ -55,7 +100,6 @@ void ofApp::setup() {
     midiOut.listOutPorts();
     midiPort = midiOut.getOutPortList();
     for (int i = 0; i < midiPort.size(); i++) {
-        cout << midiPort[i] << endl;
         if (midiPort[i].at(0) == 'I' && midiPort[i].at(1) == 'A' && midiPort[i].at(2) == 'C') {
             selectMidiPort =  i;
         }
@@ -103,7 +147,6 @@ void ofApp::setup() {
     fft = ofxFft::create(bufferSize, OF_FFT_WINDOW_BARTLETT);
 
     audioInput = new float[bufferSize];
-    cout << fft->getBinSize() << endl;
     fftOutput = new float[fft->getBinSize()];
     eqFunction = new float[fft->getBinSize()];
     eqOutput = new float[fft->getBinSize()];
@@ -136,20 +179,20 @@ vector<string> ofApp::getStringVector(string fileName) {
     ofBuffer _bufferBound = ofBufferFromFile(fileName);
     // if (_bufferBound.size()) {
 
-        for (ofBuffer::Line it = _bufferBound.getLines().begin(), end = _bufferBound.getLines().end(); it != end; ++it) {
-            string _s = *it;
-            istringstream iss(_s);
-            for (std::string _s; iss >> _s; ) {
-                if (_s.at(0) != ',') {
-                    if (_s.at(_s.size() - 1) == '.' || _s.at(_s.size() - 1) == ',') {
-                        _s.erase(_s.end() - 1);
-                        _result.push_back(_s);
-                    } else {
-                        _result.push_back(_s);
-                    }
+    for (ofBuffer::Line it = _bufferBound.getLines().begin(), end = _bufferBound.getLines().end(); it != end; ++it) {
+        string _s = *it;
+        istringstream iss(_s);
+        for (std::string _s; iss >> _s; ) {
+            if (_s.at(0) != ',') {
+                if (_s.at(_s.size() - 1) == '.' || _s.at(_s.size() - 1) == ',') {
+                    _s.erase(_s.end() - 1);
+                    _result.push_back(_s);
+                } else {
+                    _result.push_back(_s);
                 }
             }
         }
+    }
 
     // }
 
@@ -224,8 +267,71 @@ void ofApp::update() {
 
     // }
 
+    if (pixelRandomOn) {
+        updatePlaygroundMeshPixelPos(scaledVol);
+    }
+
+    if (textureOn) {
+        updatePlaygroundMeshTriPos(scaledVol);
+    }
 
 }
+
+
+
+
+
+//--------------------------------------------------------------
+void ofApp::updatePlaygroundMeshPixelPos(float audioVol) {
+
+    ofPushStyle();
+
+    float _randomRatio = ofMap(audioVol, 0, 1, 0, 400);
+    glPointSize(ofMap(audioVol, 0, 1, 2, 30));
+    if (audioVol > 0.1) {
+        for (int i = 0; i < playgroundMeshPixel.getNumVertices(); i++) {
+            ofVec3f _randomVec = ofVec3f( ofRandom(-audioVol * _randomRatio, audioVol * _randomRatio), ofRandom(-audioVol * _randomRatio, audioVol * _randomRatio), 0 );
+            ofVec3f _updateVec = playgroundMeshPixel.getVertex(i) + _randomVec;
+            playgroundMeshPixel.setVertex(i, _updateVec);
+        }
+    } else {
+        for (int i = 0; i < playgroundMeshPixel.getNumVertices(); i++) {
+            ofVec3f _resetVec = playgroundMeshPixelBuff.getVertex(i);
+            playgroundMeshPixel.setVertex(i, _resetVec);
+        }
+    }
+
+    ofPopStyle();
+
+}
+
+
+
+//--------------------------------------------------------------
+void ofApp::updatePlaygroundMeshTriPos(float audioVol) {
+
+    ofPushStyle();
+
+    float _randomRatio = ofMap(audioVol, 0, 1, 0, 10);
+    if (audioVol > 0.1) {
+        for (int i = 0; i < playgroundMeshTri.getNumVertices(); i++) {
+            ofVec3f _randomVec = ofVec3f( ofRandom(-audioVol * _randomRatio, audioVol * _randomRatio), ofRandom(-audioVol * _randomRatio, audioVol * _randomRatio), 0 );
+            ofVec3f _updateVec = playgroundMeshTri.getVertex(i) + _randomVec;
+            playgroundMeshTri.setVertex(i, _updateVec);
+        }
+    } else {
+        for (int i = 0; i < playgroundMeshTri.getNumVertices(); i++) {
+            ofVec3f _resetVec = playgroundMeshTriBuff.getVertex(i);
+            playgroundMeshTri.setVertex(i, _resetVec);
+        }
+    }
+
+    ofPopStyle();
+
+}
+
+
+
 
 
 
@@ -289,12 +395,32 @@ void ofApp::draw() {
     palast_playzone.draw(0, 0, ofGetWidth(), ofGetHeight());
     ofPopStyle();
 
-    for (int i = 0; i < textParticles.size(); ++i) {
-        textParticles[i].draw();
+    if (textOn) {
+        for (int i = 0; i < textParticles.size(); ++i) {
+            textParticles[i].draw();
+        }
+    }
+
+    if (pixelRandomOn) {
+        playgroundMeshPixel.drawFaces();
     }
 
 
-    // palast_trans.draw(0, 0, ofGetWidth(), ofGetHeight());
+    if (textureOn) {
+        ofPushMatrix();
+        ofPushStyle();
+        playgroundMeshTri.drawFaces();
+        ofSetColor(0, 180);
+        ofDrawRectangle(0, 0, ofGetWidth(), ofGetHeight());
+        playgroundMeshTri.drawWireframe();
+        ofPopStyle();
+        ofPopMatrix();
+    }
+
+
+
+
+// palast_trans.draw(0, 0, ofGetWidth(), ofGetHeight());
     palast_trans_all.draw(0, 0, ofGetWidth(), ofGetHeight());
 
     ofPushStyle();
@@ -313,22 +439,26 @@ void ofApp::draw() {
 
     drawEqPlot(eqOutput, fft->getBinSize(), -plotHeight, plotHeight / 2);
 
-    // if (scaleVolThresholdOn(scaledVol)) {
-    //  oldNote = scaleVolCounter(scaledVol);
-    //  midiOut.sendNoteOn(1, scaleVolCounter(scaledVol) + 64,  100);
-    // }
-    // if (scaleVolThresholdOff(scaledVol)) {
-    //  midiOut.sendNoteOff(1, oldNote + 64,  100);
-    // }
 
 
-    // testMidiSignal += 0.1;
-    // float _midiS = ofMap(int(testMidiSignal) % 127, 0, 127, 0, 7);
-    // midiOut.sendControlChange(1, 7, int(_midiS));
-    // ofDrawBitmapString(int(_midiS), 700, 20);
+// if (scaleVolThresholdOn(scaledVol)) {
+//  oldNote = scaleVolCounter(scaledVol);
+//  midiOut.sendNoteOn(1, scaleVolCounter(scaledVol) + 64,  100);
+// }
+// if (scaleVolThresholdOff(scaledVol)) {
+//  midiOut.sendNoteOff(1, oldNote + 64,  100);
+// }
+
+
+// testMidiSignal += 0.1;
+// float _midiS = ofMap(int(testMidiSignal) % 127, 0, 127, 0, 7);
+// midiOut.sendControlChange(1, 7, int(_midiS));
+// ofDrawBitmapString(int(_midiS), 700, 20);
+
 
 
     gui.draw();
+
 
 
 }
@@ -520,6 +650,7 @@ void ofApp:: audioInputInfo(float _h, vector<float> & _v) {
 void ofApp::drawEqPlot(float* array, int length, float scale, float offset) {
 
     ofPushMatrix();
+    ofPushStyle();
 
     ofTranslate( 20, 220 );
 
@@ -528,14 +659,15 @@ void ofApp::drawEqPlot(float* array, int length, float scale, float offset) {
 
     ofNoFill();
     ofDrawRectangle(0, 0, length, plotHeight);
-    glPushMatrix();
-    glTranslatef(0, plotHeight / 2 + offset, 0);
+
+    // glPushMatrix();
+    ofTranslate(0, plotHeight / 2 + offset, 0);
     ofBeginShape();
     for (int i = 0; i < length; i++) {
         ofVertex(i, array[i] * scale);
     }
     ofEndShape();
-    glPopMatrix();
+    // glPopMatrix();
 
     ofTranslate( length + 10, 0 );
 
@@ -543,7 +675,7 @@ void ofApp::drawEqPlot(float* array, int length, float scale, float offset) {
     ofDrawRectangle(15, plotHeight, 10, -scaledMiddleVol * plotHeight);
     ofDrawRectangle(2 * 15, plotHeight, 10, -scaledHighVol * plotHeight);
 
-
+    ofPopStyle();
     ofPopMatrix();
 }
 
@@ -704,5 +836,9 @@ void ofApp::setupGui() {
     gui.add(frameRate.setup("FPS", " "));
     gui.add(volumeInput.setup("Input Gain", 0.75, 0, 1.0));
     gui.add(audioThresholdLevel.setup("Audio Threshold", 0.5, 0.01, 1.0));
+
+    gui.add(textOn.setup("Text OnOff", false));
+    gui.add(pixelRandomOn.setup("Pixel OnOff", false));
+    gui.add(textureOn.setup("Texture OnOff", false));
 
 }

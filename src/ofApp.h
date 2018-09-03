@@ -117,6 +117,9 @@ public:
     ofxLabel frameRate;
     ofxFloatSlider volumeInput;
     ofxFloatSlider audioThresholdLevel;
+    ofxToggle pixelRandomOn;
+    ofxToggle textOn;
+    ofxToggle textureOn;
 
 
     float testMidiSignal;
@@ -136,9 +139,22 @@ public:
     vector<ofTrueTypeFont> alphabetFonts;
     string alphabet;
 
+
+
     int lineMoving;
     bool lineMovingOnOff;
     ofColor lineColor;
+
+
+
+    ofImage playgroundImg;
+    ofMesh playgroundMeshPixel;
+    ofMesh playgroundMeshTri;
+    ofMesh playgroundMeshPixelBuff;
+    ofMesh playgroundMeshTriBuff;
+
+    void updatePlaygroundMeshPixelPos(float audioVol);
+    void updatePlaygroundMeshTriPos(float audioVol);
 
 
 };
