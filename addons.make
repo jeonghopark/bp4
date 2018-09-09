@@ -1,3 +1,3 @@
-ofxGui
-ofxMIDI
 ofxFft
+ofxGui
+ofxMidi

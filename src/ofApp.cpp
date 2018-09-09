@@ -14,7 +14,14 @@ void ofApp::setup() {
     ofSetVerticalSync(true);
     // ofSetCircleResolution(80);
 
-    fullscreenRatio = 1440 / 1920.0;
+
+    float fullscreenWRatio = ofGetWidth() / 1920.0;
+    float fullscreenHRatio = ofGetHeight() / 1080.0;
+
+
+
+    cout << ofGetWidth() << endl;
+
 
     ofBackground(54, 54, 54);
 
@@ -26,9 +33,9 @@ void ofApp::setup() {
         ofTrueTypeFont _f;
         _f.load( "verdana.ttf", (int)ofRandom(7, 136) );
         alphabetFont.push_back(_f);
-        TextParticle _t = TextParticle( ofVec3f(633, 615, 0.0), alphabetFont[i] );
+        TextParticle _t = TextParticle( ofVec3f(ofGetWidth() * 0.44, ofGetWidth() * 0.427, 0.0), alphabetFont[i] );
         textParticles.push_back(_t);
-        _t = TextParticle( ofVec3f(809, 615, 0.0), alphabetFont[i] );
+        _t = TextParticle( ofVec3f(ofGetWidth() * 0.562, ofGetWidth() * 0.427, 0.0), alphabetFont[i] );
         textParticles.push_back(_t);
     }
 
@@ -40,13 +47,14 @@ void ofApp::setup() {
     playgroundImg.load("palast_playzone_all.png");
 
 
+    int _stepP = 3;
     playgroundMeshPixel.setMode(OF_PRIMITIVE_POINTS);
     playgroundMeshPixel.enableColors();
-    for (int w = 0; w < playgroundImg.getWidth(); w += 3) {
-        for (int h = 0; h < playgroundImg.getHeight(); h += 3) {
+    for (int w = 0; w < playgroundImg.getWidth(); w += _stepP) {
+        for (int h = 0; h < playgroundImg.getHeight(); h += _stepP) {
             ofColor c = playgroundImg.getColor(w, h);
             if (c.a != 0) {
-                ofVec3f pos(w * fullscreenRatio, h * fullscreenRatio, 0.0);
+                ofVec3f pos(w * fullscreenWRatio, h * fullscreenHRatio, 0.0);
                 playgroundMeshPixel.addVertex(pos);
                 playgroundMeshPixel.addColor(c);
             }
@@ -57,18 +65,18 @@ void ofApp::setup() {
 
     playgroundMeshTri.setMode(OF_PRIMITIVE_TRIANGLES);
     // playgroundMeshTri.enableIndices();
-    int _step = 20;
-    for (int h = 0; h < playgroundImg.getHeight(); h += _step) {
-        for (int w = 0; w < playgroundImg.getWidth(); w += _step) {
+    int _stepT = 20;
+    for (int h = 0; h < playgroundImg.getHeight(); h += _stepT) {
+        for (int w = 0; w < playgroundImg.getWidth(); w += _stepT) {
             ofColor c = playgroundImg.getColor(w, h);
-            ofVec3f pos(w * fullscreenRatio, h * fullscreenRatio, 0.0);
+            ofVec3f pos(w * fullscreenWRatio, h * fullscreenHRatio, 0.0);
             playgroundMeshTri.addVertex(pos);
             playgroundMeshTri.addColor(c);
         }
     }
 
-    int _w = playgroundImg.getWidth() / _step;
-    int _h = playgroundImg.getHeight() / _step;
+    int _w = playgroundImg.getWidth() / _stepT;
+    int _h = playgroundImg.getHeight() / _stepT;
     for (int i = 0; i < _w - 1; i += 1) {
         for (int j = 0; j < _h - 1; j += 1) {
             playgroundMeshTri.addIndex(i + j * _w);
@@ -233,10 +241,10 @@ void ofApp::update() {
         switchOn = true;
         for (int i = 0; i < 10; i++) {
             if (ofRandom(1) < 0.5) {
-                TextParticle _t = TextParticle( ofVec3f(633, 615, 0.0), alphabetFont[i] );
+                TextParticle _t = TextParticle( ofVec3f(ofGetWidth() * 0.44, ofGetWidth() * 0.427, 0.0), alphabetFont[i] );
                 textParticles.push_back(_t);
             } else {
-                TextParticle _t = TextParticle( ofVec3f(809, 615, 0.0), alphabetFont[i] );
+                TextParticle _t = TextParticle( ofVec3f(ofGetWidth() * 0.562, ofGetWidth() * 0.427, 0.0), alphabetFont[i] );
                 textParticles.push_back(_t);
             }
         }
@@ -389,7 +397,6 @@ void ofApp::midiOutScaleChange() {
 //--------------------------------------------------------------
 void ofApp::draw() {
 
-
     ofPushStyle();
     ofSetColor(180);
     palast_playzone.draw(0, 0, ofGetWidth(), ofGetHeight());
@@ -409,10 +416,14 @@ void ofApp::draw() {
     if (textureOn) {
         ofPushMatrix();
         ofPushStyle();
+        // ofSetColor(255);
         playgroundMeshTri.drawFaces();
-        ofSetColor(0, 180);
-        ofDrawRectangle(0, 0, ofGetWidth(), ofGetHeight());
-        playgroundMeshTri.drawWireframe();
+
+        // ofSetColor(0, 180);
+        // ofDrawRectangle(0, 0, ofGetWidth(), ofGetHeight());
+
+        // playgroundMeshTri.drawWireframe();
+
         ofPopStyle();
         ofPopMatrix();
     }
@@ -455,13 +466,11 @@ void ofApp::draw() {
 // midiOut.sendControlChange(1, 7, int(_midiS));
 // ofDrawBitmapString(int(_midiS), 700, 20);
 
-
-
     gui.draw();
 
-
-
 }
+
+
 
 
 
@@ -582,7 +591,7 @@ void ofApp::textView(int _index) {
     ofPushStyle();
     ofPushMatrix();
 
-    ofTranslate(500, ofGetHeight() - 250);
+    ofTranslate(ofGetWidth() * 0.347, ofGetHeight() - 250);
 
 
     // ofDrawBitmapString("Audio Trigger Sequence Text", 0, 55);

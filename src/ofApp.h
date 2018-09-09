@@ -125,9 +125,6 @@ public:
     float testMidiSignal;
 
 
-    float fullscreenRatio;
-
-
     ofImage palast_trans;
     ofImage palast_trans_all;
     ofImage palast_black_windows;
