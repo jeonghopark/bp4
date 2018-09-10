@@ -91,7 +91,6 @@ void ofApp::setup() {
     playgroundMeshTriBuff = playgroundMeshTri;
 
 
-
     ofBuffer _buffer = ofBufferFromFile("DerBluePunktImAll.txt");
     if (_buffer.size()) {
         for (ofBuffer::Line it = _buffer.getLines().begin(), end = _buffer.getLines().end(); it != end; ++it) {
@@ -298,7 +297,7 @@ void ofApp::updatePlaygroundMeshPixelPos(float audioVol) {
     glPointSize(ofMap(audioVol, 0, 1, 2, 30));
     if (audioVol > 0.1) {
         for (int i = 0; i < playgroundMeshPixel.getNumVertices(); i++) {
-            ofVec3f _randomVec = ofVec3f( ofRandom(-audioVol * _randomRatio, audioVol * _randomRatio), ofRandom(-audioVol * _randomRatio, audioVol * _randomRatio), 0 );
+            ofVec3f _randomVec = ofVec3f( ofRandom(-_randomRatio, _randomRatio), ofRandom(-_randomRatio, _randomRatio), 0 );
             ofVec3f _updateVec = playgroundMeshPixel.getVertex(i) + _randomVec;
             playgroundMeshPixel.setVertex(i, _updateVec);
         }
@@ -323,7 +322,7 @@ void ofApp::updatePlaygroundMeshTriPos(float audioVol) {
     float _randomRatio = ofMap(audioVol, 0, 1, 0, 10);
     if (audioVol > 0.1) {
         for (int i = 0; i < playgroundMeshTri.getNumVertices(); i++) {
-            ofVec3f _randomVec = ofVec3f( ofRandom(-audioVol * _randomRatio, audioVol * _randomRatio), ofRandom(-audioVol * _randomRatio, audioVol * _randomRatio), 0 );
+            ofVec3f _randomVec = ofVec3f( ofRandom(-_randomRatio, _randomRatio), ofRandom(-_randomRatio, _randomRatio), 0 );
             ofVec3f _updateVec = playgroundMeshTri.getVertex(i) + _randomVec;
             playgroundMeshTri.setVertex(i, _updateVec);
         }
@@ -421,8 +420,11 @@ void ofApp::draw() {
 
         // ofSetColor(0, 180);
         // ofDrawRectangle(0, 0, ofGetWidth(), ofGetHeight());
-
         // playgroundMeshTri.drawWireframe();
+
+        for (int i=0; i<playgroundMeshTri.getNumVertices()-1; i+=1) {
+            ofDrawLine(playgroundMeshTri.getVertex(i), playgroundMeshTri.getVertex(i + 1));
+        }
 
         ofPopStyle();
         ofPopMatrix();

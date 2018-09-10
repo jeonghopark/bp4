@@ -150,6 +150,9 @@ public:
     ofMesh playgroundMeshPixelBuff;
     ofMesh playgroundMeshTriBuff;
 
+    ofMesh playgroundMeshQuad;
+    ofMesh playgroundMeshQuadBuff;
+
     void updatePlaygroundMeshPixelPos(float audioVol);
     void updatePlaygroundMeshTriPos(float audioVol);
 
