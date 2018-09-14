@@ -20,9 +20,6 @@ void ofApp::setup() {
 
 
 
-    cout << ofGetWidth() << endl;
-
-
     ofBackground(54, 54, 54);
 
     setupGui();
