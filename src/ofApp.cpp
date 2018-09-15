@@ -19,11 +19,7 @@ void ofApp::setup() {
     float fullscreenHRatio = ofGetHeight() / 1080.0;
 
 
-
-    cout << ofGetWidth() << endl;
-
-
-    ofBackground(54, 54, 54);
+    ofBackground(0);
 
     setupGui();
 
