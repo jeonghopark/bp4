@@ -48,6 +48,8 @@ public:
 
 
     ofSoundStream soundStream;
+    void setSoundStream(ofSoundStream & _s);
+
 
     void audioInputInfo(float _h, vector<float> & _v);
     vector<float> & volHistoryGenerator(float _h);

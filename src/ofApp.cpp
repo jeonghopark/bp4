@@ -5,14 +5,11 @@
 void ofApp::setup() {
 
 #ifdef DEBUG
-
 #else
     ofSetDataPathRoot("../Resources/data");
 #endif
 
-
     ofSetVerticalSync(true);
-    // ofSetCircleResolution(80);
 
 
     float fullscreenWRatio = ofGetWidth() / 1920.0;
@@ -112,14 +109,6 @@ void ofApp::setup() {
 
 
 
-    soundStream.printDeviceList();
-
-    int bufferSize = 512;
-
-    left.assign(bufferSize, 0.0);
-    right.assign(bufferSize, 0.0);
-    // volHistory.assign(250, 0.0);
-
     bufferCounter = 0;
     drawCounter = 0;
     smoothedVol = 0.0;
@@ -128,18 +117,8 @@ void ofApp::setup() {
     smoothedBaseVol = 0.0;
     scaledBaseVol = 0.0;
 
-    ofSoundStreamSettings settings;
-    auto devices = soundStream.getMatchingDevices("default");
-    if (!devices.empty()) {
-        settings.setInDevice(devices[0]);
-    }
 
-    settings.setInListener(this);
-    settings.sampleRate = 44100;
-    settings.numOutputChannels = 0;
-    settings.numInputChannels = 2;
-    settings.bufferSize = bufferSize;
-    soundStream.setup(settings);
+    setSoundStream(soundStream);
 
 
     verdana30.load("verdana.ttf", 30, true, true);
@@ -171,6 +150,36 @@ void ofApp::setup() {
 
 
 }
+
+
+
+
+//--------------------------------------------------------------
+void ofApp::setSoundStream(ofSoundStream & _s){
+    
+    _s.printDeviceList();
+
+    int _bufferSize = 512;
+    left.assign(_bufferSize, 0.0);
+    right.assign(_bufferSize, 0.0);
+    // volHistory.assign(250, 0.0);
+
+    ofSoundStreamSettings _settings;
+    auto devices = _s.getMatchingDevices("default");
+    if (!devices.empty()) {
+        _settings.setInDevice(devices[0]);
+    }
+
+    _settings.setInListener(this);
+    _settings.sampleRate = 44100;
+    _settings.numOutputChannels = 0;
+    _settings.numInputChannels = 2;
+    _settings.bufferSize = _bufferSize;
+    _s.setup(_settings);
+
+}
+
+
 
 
 
@@ -418,7 +427,7 @@ void ofApp::draw() {
         // ofDrawRectangle(0, 0, ofGetWidth(), ofGetHeight());
         // playgroundMeshTri.drawWireframe();
 
-        for (int i=0; i<playgroundMeshTri.getNumVertices()-1; i+=1) {
+        for (int i = 0; i < playgroundMeshTri.getNumVertices() - 1; i += 1) {
             ofDrawLine(playgroundMeshTri.getVertex(i), playgroundMeshTri.getVertex(i + 1));
         }
 
