@@ -18,7 +18,6 @@ void ofApp::setup() {
 
     ofBackground(0);
 
-    setupGui();
 
     switchOn = false;
 
@@ -106,7 +105,8 @@ void ofApp::setup() {
     }
     midiOut.openPort(0);
     selectMidiName = midiPort[selectMidiPort];
-
+    guiInfo->selectMidiName = selectMidiName;
+    guiInfo->midiPort = midiPort;
 
 
     bufferCounter = 0;
@@ -155,8 +155,8 @@ void ofApp::setup() {
 
 
 //--------------------------------------------------------------
-void ofApp::setSoundStream(ofSoundStream & _s){
-    
+void ofApp::setSoundStream(ofSoundStream & _s) {
+
     _s.printDeviceList();
 
     int _bufferSize = 512;
@@ -216,7 +216,7 @@ vector<string> ofApp::getStringVector(string fileName) {
 
 
 //--------------------------------------------------------------
-bool shouldRemove(TextParticle &p) {
+bool shouldRemove(TextParticle & p) {
     if (p.position.y < 0 ) return true;
     else return false;
 }
@@ -228,18 +228,25 @@ void ofApp::update() {
 
     scaleVolChange();
 
-    frameRate = ofToString(ofGetFrameRate(), 1);
+    midiOutScaleChange();
+
+
+    guiInfo->frameRate = ofToString(ofGetFrameRate(), 1);
+    guiInfo->scaledVol = scaledVol;
 
 
     for (int i = 0; i < textParticles.size(); ++i) {
         textParticles[i].update();
     }
-
     ofRemove(textParticles, shouldRemove);
+
+
 
     if (lineMovingOnOff) {
         lineMoving += 7;
     }
+
+
 
     if (scaleVolThresholdOn(scaledVol) && switchOn == false) {
         switchOn = true;
@@ -260,7 +267,6 @@ void ofApp::update() {
         switchOn = false;
     }
 
-    // cout << textParticles.size() << endl;
 
     // if (lineMoving > 282) {
     //     lineMovingOnOff = false;
@@ -279,13 +285,16 @@ void ofApp::update() {
 
     // }
 
-    if (pixelRandomOn) {
-        updatePlaygroundMeshPixelPos(scaledVol);
+    if (guiInfo->pixelRandomOn) {
+        updatePlaygroundMesh(playgroundMeshPixel, playgroundMeshPixelBuff, scaledVol, 400);
     }
 
-    if (textureOn) {
-        updatePlaygroundMeshTriPos(scaledVol);
+    if (guiInfo->textureOn) {
+        updatePlaygroundMesh(playgroundMeshTri, playgroundMeshTriBuff, scaledVol, 10);
     }
+
+
+
 
 }
 
@@ -294,22 +303,22 @@ void ofApp::update() {
 
 
 //--------------------------------------------------------------
-void ofApp::updatePlaygroundMeshPixelPos(float audioVol) {
+void ofApp::updatePlaygroundMesh(ofMesh & m, ofMesh & mBuff, float audioVol, float ratio) {
 
     ofPushStyle();
 
-    float _randomRatio = ofMap(audioVol, 0, 1, 0, 400);
-    glPointSize(ofMap(audioVol, 0, 1, 2, 30));
+    float _randomRatio = ofMap(audioVol, 0, 1, 0, ratio);
+    // glPointSize(ofMap(audioVol, 0, 1, 2, ratio));
     if (audioVol > 0.1) {
-        for (int i = 0; i < playgroundMeshPixel.getNumVertices(); i++) {
+        for (int i = 0; i < m.getNumVertices(); i++) {
             ofVec3f _randomVec = ofVec3f( ofRandom(-_randomRatio, _randomRatio), ofRandom(-_randomRatio, _randomRatio), 0 );
-            ofVec3f _updateVec = playgroundMeshPixel.getVertex(i) + _randomVec;
-            playgroundMeshPixel.setVertex(i, _updateVec);
+            ofVec3f _updateVec = m.getVertex(i) + _randomVec;
+            m.setVertex(i, _updateVec);
         }
     } else {
-        for (int i = 0; i < playgroundMeshPixel.getNumVertices(); i++) {
-            ofVec3f _resetVec = playgroundMeshPixelBuff.getVertex(i);
-            playgroundMeshPixel.setVertex(i, _resetVec);
+        for (int i = 0; i < m.getNumVertices(); i++) {
+            ofVec3f _resetVec = mBuff.getVertex(i);
+            m.setVertex(i, _resetVec);
         }
     }
 
@@ -318,49 +327,6 @@ void ofApp::updatePlaygroundMeshPixelPos(float audioVol) {
 }
 
 
-
-//--------------------------------------------------------------
-void ofApp::updatePlaygroundMeshTriPos(float audioVol) {
-
-    ofPushStyle();
-
-    float _randomRatio = ofMap(audioVol, 0, 1, 0, 10);
-    if (audioVol > 0.1) {
-        for (int i = 0; i < playgroundMeshTri.getNumVertices(); i++) {
-            ofVec3f _randomVec = ofVec3f( ofRandom(-_randomRatio, _randomRatio), ofRandom(-_randomRatio, _randomRatio), 0 );
-            ofVec3f _updateVec = playgroundMeshTri.getVertex(i) + _randomVec;
-            playgroundMeshTri.setVertex(i, _updateVec);
-        }
-    } else {
-        for (int i = 0; i < playgroundMeshTri.getNumVertices(); i++) {
-            ofVec3f _resetVec = playgroundMeshTriBuff.getVertex(i);
-            playgroundMeshTri.setVertex(i, _resetVec);
-        }
-    }
-
-    ofPopStyle();
-
-}
-
-
-
-
-
-
-//--------------------------------------------------------------
-vector<float> & ofApp::volHistoryGenerator(float _h) {
-
-    static vector<float> _fV;
-
-    _fV.push_back( _h );
-
-    if ( _fV.size() >= 250 ) {
-        _fV.erase(_fV.begin(), _fV.begin() + 1);
-    }
-
-    return _fV;
-
-}
 
 
 //--------------------------------------------------------------
@@ -370,6 +336,12 @@ void ofApp::scaleVolChange() {
     scaledBaseVol = ofMap(smoothedBaseVol, 0.0, 0.17, 0.0, 1.0, true);
     scaledMiddleVol = ofMap(smoothedMiddleVol, 0.0, 0.17, 0.0, 1.0, true);
     scaledHighVol = ofMap(smoothedHighVol, 0.0, 0.17, 0.0, 1.0, true);
+
+
+    guiInfo->scaledVol = scaledVol;
+    guiInfo->scaledBaseVol = scaledBaseVol;
+    guiInfo->scaledMiddleVol = scaledMiddleVol;
+    guiInfo->scaledHighVol = scaledHighVol;
 
 }
 
@@ -392,7 +364,6 @@ void ofApp::midiOutScaleChange() {
         midiOut.sendControlChange(1, 23, ofMap(scaledHighVol, 0.1, 1, 0, 127));
     }
 
-
 }
 
 
@@ -406,18 +377,23 @@ void ofApp::draw() {
     palast_playzone.draw(0, 0, ofGetWidth(), ofGetHeight());
     ofPopStyle();
 
-    if (textOn) {
+
+    if (guiInfo->textOn) {
         for (int i = 0; i < textParticles.size(); ++i) {
             textParticles[i].draw();
         }
     }
 
-    if (pixelRandomOn) {
+
+    if (guiInfo->pixelRandomOn) {
+        glPointSize(ofMap(scaledVol, 0, 1, 2, 30));
         playgroundMeshPixel.drawFaces();
+    } else {
+        glPointSize(1);
     }
 
 
-    if (textureOn) {
+    if (guiInfo->textureOn) {
         ofPushMatrix();
         ofPushStyle();
         // ofSetColor(255);
@@ -436,8 +412,6 @@ void ofApp::draw() {
     }
 
 
-
-
 // palast_trans.draw(0, 0, ofGetWidth(), ofGetHeight());
     palast_trans_all.draw(0, 0, ofGetWidth(), ofGetHeight());
 
@@ -447,16 +421,11 @@ void ofApp::draw() {
     ofPopStyle();
 
 
-    audioInputInfo(scaledVol, volHistoryGenerator(scaledVol));
-
-    textView(scaleVolCounter(scaledVol));
-
-    midiOutScaleChange();
-
-    midiOutputInformation();
-
-    drawEqPlot(eqOutput, fft->getBinSize(), -plotHeight, plotHeight / 2);
-
+    guiInfo->eqOutput = eqOutput;
+    guiInfo->fftBinSize = fft->getBinSize();
+    guiInfo->plotHeight = plotHeight;
+    guiInfo->scaledBaseVol = scaledBaseVol;
+    
 
 
 // if (scaleVolThresholdOn(scaledVol)) {
@@ -473,7 +442,6 @@ void ofApp::draw() {
 // midiOut.sendControlChange(1, 7, int(_midiS));
 // ofDrawBitmapString(int(_midiS), 700, 20);
 
-    gui.draw();
 
 }
 
@@ -484,14 +452,11 @@ void ofApp::draw() {
 //--------------------------------------------------------------
 bool ofApp::noteOff() {
 
-    static int timer = 0;
-
-    timer++;
-    cout << timer << endl;
-    if (timer > 120) {
+    static int _timer = 0;
+    _timer++;
+    if (_timer > 120) {
         return true;
     }
-
     return false;
 
 }
@@ -501,7 +466,7 @@ bool ofApp::noteOff() {
 //--------------------------------------------------------------
 bool ofApp::scaleVolThresholdOn(float _scaledVol) {
 
-    if (_scaledVol > audioThresholdLevel) {
+    if (_scaledVol > guiInfo->audioThresholdLevel) {
         return true;
     }
 
@@ -538,12 +503,12 @@ int ofApp::scaleVolCounter(float _scaledVol) {
     static int count = 0;
     static bool th = false;
 
-    if (_scaledVol > audioThresholdLevel && th) {
+    if (_scaledVol > guiInfo->audioThresholdLevel && th) {
         count += 1;
         th = false;
     }
 
-    if (_scaledVol < audioThresholdLevel) {
+    if (_scaledVol < guiInfo->audioThresholdLevel) {
         th = true;
     }
 
@@ -553,42 +518,6 @@ int ofApp::scaleVolCounter(float _scaledVol) {
 
 
 
-
-//--------------------------------------------------------------
-void ofApp::midiOutputInformation() {
-
-    ofPushStyle();
-    ofPushMatrix();
-
-    ofTranslate(20, 190);
-
-    string _v = ofToString(ofMap(scaledVol, 0.0, 1, 0, 127), 0);
-    ofDrawBitmapString("Main Volume / CH : 1 / Ctrl Nr : 20 / " + _v, 0, 0);
-
-
-
-    string _vB = ofToString(ofMap(scaledBaseVol, 0.0, 1, 0, 127), 0);
-    ofDrawBitmapString("Base Volume / CH : 1 / Ctrl Nr : 21 / " + _vB, 0, 190);
-
-    string _vM = ofToString(ofMap(scaledMiddleVol, 0.0, 1, 0, 127), 0);
-    ofDrawBitmapString("Mid Volume  / CH : 1 / Ctrl Nr : 22 / " + _vM, 0, 210);
-
-    string _vH = ofToString(ofMap(scaledHighVol, 0.0, 1, 0, 127), 0);
-    ofDrawBitmapString("High Volume / CH : 1 / Ctrl Nr : 23 / " + _vH, 0, 230);
-
-
-
-    ofDrawBitmapString("Select Midi Port: " + selectMidiName, 0, 260);
-
-    for (int i = 0; i < midiPort.size(); i++) {
-        ofDrawBitmapString("All Midi Port: " + midiPort[i], 0, i * 20 + 280);
-    }
-
-
-    ofPopMatrix();
-    ofPopStyle();
-
-}
 
 
 
@@ -624,78 +553,6 @@ void ofApp::textView(int _index) {
 
 
 
-//--------------------------------------------------------------
-void ofApp:: audioInputInfo(float _h, vector<float> & _v) {
-
-    ofPushStyle();
-    ofPushMatrix();
-    ofTranslate(20, 20, 0);
-
-    ofDrawBitmapString("Scaled average vol (0-100): " + ofToString(_h * 100.0, 0), 0, 18);
-
-    ofSetColor(255);
-    ofFill();
-    ofDrawRectangle(260, 150, 20, -_h * 70);
-    ofNoFill();
-    ofDrawRectangle(260, 150, 20, -70);
-    ofSetColor(255, 0, 0);
-    ofDrawLine(260, 150 - 70 * audioThresholdLevel, 280, 150 - 70 * audioThresholdLevel);
-
-
-    ofFill();
-    ofSetColor(255);
-    ofBeginShape();
-    for (unsigned int i = 0; i < _v.size(); i++) {
-        if ( i == 0 ) ofVertex(i, 150);
-        ofVertex(i, 150 - _v[i] * 70);
-
-        if ( i == _v.size() - 1 ) ofVertex(i, 150);
-    }
-    ofEndShape(false);
-
-
-    // ofDrawBitmapString(ofToString(ofGetFrameRate(), 1), 0, 0);
-
-    ofPopMatrix();
-    ofPopStyle();
-
-}
-
-
-//--------------------------------------------------------------
-void ofApp::drawEqPlot(float* array, int length, float scale, float offset) {
-
-    ofPushMatrix();
-    ofPushStyle();
-
-    ofTranslate( 20, 220 );
-
-    // glTranslatef(fft->getBinSize(), 0, 0);
-    // ofDrawBitmapString("EQd FFT Output", 0, 0);
-
-    ofNoFill();
-    ofDrawRectangle(0, 0, length, plotHeight);
-
-    // glPushMatrix();
-    ofTranslate(0, plotHeight / 2 + offset, 0);
-    ofBeginShape();
-    for (int i = 0; i < length; i++) {
-        ofVertex(i, array[i] * scale);
-    }
-    ofEndShape();
-    // glPopMatrix();
-
-    ofTranslate( length + 10, 0 );
-
-    ofDrawRectangle(0, plotHeight, 10, -scaledBaseVol * plotHeight);
-    ofDrawRectangle(15, plotHeight, 10, -scaledMiddleVol * plotHeight);
-    ofDrawRectangle(2 * 15, plotHeight, 10, -scaledHighVol * plotHeight);
-
-    ofPopStyle();
-    ofPopMatrix();
-}
-
-
 
 //--------------------------------------------------------------
 void ofApp::audioIn(ofSoundBuffer & input) {
@@ -705,8 +562,8 @@ void ofApp::audioIn(ofSoundBuffer & input) {
     int numCounted = 0;
 
     for (size_t i = 0; i < input.getNumFrames(); i++) {
-        left[i]     = input[i * 2] * volumeInput;
-        right[i]    = input[i * 2 + 1] * volumeInput;
+        left[i]     = input[i * 2] * guiInfo->volumeInput;
+        right[i]    = input[i * 2 + 1] * guiInfo->volumeInput;
 
         curVol += left[i] * left[i];
         curVol += right[i] * right[i];
@@ -740,7 +597,6 @@ void ofApp::audioIn(ofSoundBuffer & input) {
 
     smoothedHighVol *= 0.93;
     smoothedHighVol += 0.07 * getSmoothedVol(eqOutput, 10, 40);
-
 
 
 
@@ -841,20 +697,3 @@ void ofApp::dragEvent(ofDragInfo dragInfo) {
 
 }
 
-
-
-//--------------------------------------------------------------
-void ofApp::setupGui() {
-
-    gui.setup();
-    gui.setPosition(ofGetWidth() - 250, 10);
-
-    gui.add(frameRate.setup("FPS", " "));
-    gui.add(volumeInput.setup("Input Gain", 0.75, 0, 1.0));
-    gui.add(audioThresholdLevel.setup("Audio Threshold", 0.5, 0.01, 1.0));
-
-    gui.add(textOn.setup("Text OnOff", false));
-    gui.add(pixelRandomOn.setup("Pixel OnOff", false));
-    gui.add(textureOn.setup("Texture OnOff", false));
-
-}

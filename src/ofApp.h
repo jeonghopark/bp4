@@ -3,6 +3,7 @@
 #include "ofxFft.h"
 #include "ofxGui.h"
 
+#include "GuiInfoApp.h"
 #include "TextParticle.h"
 
 
@@ -29,6 +30,8 @@ public:
     void audioIn(ofSoundBuffer & input);
     float getSmoothedVol(float * _in, int _s, int _e);
 
+    shared_ptr<GuiInfoApp> guiInfo;
+
     vector <float> left;
     vector <float> right;
     // vector <float> volHistory;
@@ -51,8 +54,8 @@ public:
     void setSoundStream(ofSoundStream & _s);
 
 
-    void audioInputInfo(float _h, vector<float> & _v);
-    vector<float> & volHistoryGenerator(float _h);
+    // void audioInputInfo(float _h, vector<float> & _v);
+    // vector<float> & volHistoryGenerator(float _h);
 
     ofTrueTypeFont verdana30;
 
@@ -78,20 +81,19 @@ public:
     float audioThreshold;
 
 
-    void midiOutputInformation();
     vector<string> midiPort;
     int selectMidiPort;
     string selectMidiName;
 
     int plotHeight, bufferSize;
 
-    ofxFft* fft;
+    ofxFft * fft;
 
-    float* audioInput;
-    float* fftOutput;
-    float* eqFunction;
-    float* eqOutput;
-    float* ifftOutput;
+    float * audioInput;
+    float * fftOutput;
+    float * eqFunction;
+    float * eqOutput;
+    float * ifftOutput;
 
     // vector<float> audioInput;
     // vector<float> fftOutput;
@@ -103,7 +105,6 @@ public:
     float appWidth;
     float appHeight;
 
-    void drawEqPlot(float* array, int length, float scale, float offset);
 
     void scaleVolChange();
     void midiOutScaleChange();
@@ -112,16 +113,6 @@ public:
     vector<string> getStringVector(string fileName);
     vector<string> seussLines;
     vector<string> textWords;
-
-
-    void setupGui();
-    ofxPanel gui;
-    ofxLabel frameRate;
-    ofxFloatSlider volumeInput;
-    ofxFloatSlider audioThresholdLevel;
-    ofxToggle pixelRandomOn;
-    ofxToggle textOn;
-    ofxToggle textureOn;
 
 
     float testMidiSignal;
@@ -155,8 +146,7 @@ public:
     ofMesh playgroundMeshQuad;
     ofMesh playgroundMeshQuadBuff;
 
-    void updatePlaygroundMeshPixelPos(float audioVol);
-    void updatePlaygroundMeshTriPos(float audioVol);
+    void updatePlaygroundMesh(ofMesh & m, ofMesh & mBuff, float audioVol, float ratio);
 
 
 };
