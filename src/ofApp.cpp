@@ -13,7 +13,7 @@ void ofApp::setup() {
 
 
     float fullscreenWRatio = ofGetWidth() / 1920.0;
-    float fullscreenHRatio = ofGetHeight() / 1080.0;
+    float fullscreenHRatio = ofGetHeight() / 1920.0;
 
 
     ofBackground(0);
@@ -21,13 +21,16 @@ void ofApp::setup() {
 
     switchOn = false;
 
+    textParticleLeft = ofVec3f(ofGetWidth() * 0.394, ofGetHeight() * 0.784, 0.0);
+    textParticleRight = ofVec3f(ofGetWidth() * 0.611, ofGetHeight() * 0.784, 0.0);
+
     for (int i = 0; i < 20; i++) {
         ofTrueTypeFont _f;
         _f.load( "verdana.ttf", (int)ofRandom(7, 136) );
         alphabetFont.push_back(_f);
-        TextParticle _t = TextParticle( ofVec3f(ofGetWidth() * 0.44, ofGetWidth() * 0.427, 0.0), alphabetFont[i] );
+        TextParticle _t = TextParticle( textParticleLeft, alphabetFont[i] );  // 317, 633
         textParticles.push_back(_t);
-        _t = TextParticle( ofVec3f(ofGetWidth() * 0.562, ofGetWidth() * 0.427, 0.0), alphabetFont[i] );
+        _t = TextParticle( textParticleRight, alphabetFont[i] );   // 494, 633
         textParticles.push_back(_t);
     }
 
@@ -39,7 +42,7 @@ void ofApp::setup() {
     playgroundImg.load("palast_playzone_all.png");
 
 
-    int _stepP = 3;
+    int _stepP = 6;
     playgroundMeshPixel.setMode(OF_PRIMITIVE_POINTS);
     playgroundMeshPixel.enableColors();
     for (int w = 0; w < playgroundImg.getWidth(); w += _stepP) {
@@ -57,7 +60,7 @@ void ofApp::setup() {
 
     playgroundMeshTri.setMode(OF_PRIMITIVE_TRIANGLES);
     // playgroundMeshTri.enableIndices();
-    int _stepT = 20;
+    int _stepT = 40;
     for (int h = 0; h < playgroundImg.getHeight(); h += _stepT) {
         for (int w = 0; w < playgroundImg.getWidth(); w += _stepT) {
             ofColor c = playgroundImg.getColor(w, h);
@@ -234,6 +237,12 @@ void ofApp::update() {
     guiInfo->frameRate = ofToString(ofGetFrameRate(), 1);
     guiInfo->scaledVol = scaledVol;
 
+    guiInfo->eqOutput = eqOutput;
+    guiInfo->fftBinSize = fft->getBinSize();
+    guiInfo->plotHeight = plotHeight;
+    guiInfo->scaledBaseVol = scaledBaseVol;
+    
+
 
     for (int i = 0; i < textParticles.size(); ++i) {
         textParticles[i].update();
@@ -252,10 +261,10 @@ void ofApp::update() {
         switchOn = true;
         for (int i = 0; i < 10; i++) {
             if (ofRandom(1) < 0.5) {
-                TextParticle _t = TextParticle( ofVec3f(ofGetWidth() * 0.44, ofGetWidth() * 0.427, 0.0), alphabetFont[i] );
+                TextParticle _t = TextParticle( textParticleLeft, alphabetFont[i] );
                 textParticles.push_back(_t);
             } else {
-                TextParticle _t = TextParticle( ofVec3f(ofGetWidth() * 0.562, ofGetWidth() * 0.427, 0.0), alphabetFont[i] );
+                TextParticle _t = TextParticle( textParticleRight, alphabetFont[i] );
                 textParticles.push_back(_t);
             }
         }
@@ -421,11 +430,6 @@ void ofApp::draw() {
     ofPopStyle();
 
 
-    guiInfo->eqOutput = eqOutput;
-    guiInfo->fftBinSize = fft->getBinSize();
-    guiInfo->plotHeight = plotHeight;
-    guiInfo->scaledBaseVol = scaledBaseVol;
-    
 
 
 // if (scaleVolThresholdOn(scaledVol)) {

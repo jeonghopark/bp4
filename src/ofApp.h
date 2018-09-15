@@ -113,7 +113,8 @@ public:
     vector<string> getStringVector(string fileName);
     vector<string> seussLines;
     vector<string> textWords;
-
+    ofVec3f textParticleLeft;
+    ofVec3f textParticleRight;
 
     float testMidiSignal;
 
