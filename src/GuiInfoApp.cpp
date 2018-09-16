@@ -22,6 +22,7 @@ void GuiInfoApp::setup(){
     gui.add(textOn.setup("Text OnOff", true));
     gui.add(pixelRandomOn.setup("Pixel OnOff", false));
     gui.add(textureOn.setup("Texture OnOff", false));
+    gui.add(windowsOn.setup("Windows OnOff", false));
 
 }
 
@@ -116,11 +117,14 @@ void GuiInfoApp::drawEqPlot(float* array, int length, float scale, float offset)
     ofDrawRectangle(0, 0, length, plotHeight);
 
     // glPushMatrix();
+    ofFill();
     ofTranslate(0, plotHeight / 2 + offset, 0);
     ofBeginShape();
+    ofVertex(0, 0);
     for (int i = 0; i < length; i++) {
         ofVertex(i, array[i] * scale);
     }
+    ofVertex(length, 0);
     ofEndShape();
     // glPopMatrix();
 

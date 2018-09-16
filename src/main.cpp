@@ -26,12 +26,4 @@ int main( ){
     ofRunApp(mainWindow, mainApp);
     ofRunMainLoop();
 
-
-	// ofSetupOpenGL(1440, 810, OF_WINDOW); // 1440, 810 / 1920, 1080
-
-	// // this kicks off the running of my app
-	// // can be OF_WINDOW or OF_FULLSCREEN
-	// // pass in width and height too:
-	// ofRunApp( new ofApp());
-
 }

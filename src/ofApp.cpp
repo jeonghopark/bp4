@@ -38,6 +38,7 @@ void ofApp::setup() {
     // palast_trans.load("palast_trans.png");
     palast_trans_all.load("palast_trans_all.png");
     palast_black_windows.load("palast_black_windows.png");
+    palast_white_windows.load("palast_white_windows.png");
     palast_playzone.load("palast_playzone.png");
     playgroundImg.load("palast_playzone_all.png");
 
@@ -241,7 +242,7 @@ void ofApp::update() {
     guiInfo->fftBinSize = fft->getBinSize();
     guiInfo->plotHeight = plotHeight;
     guiInfo->scaledBaseVol = scaledBaseVol;
-    
+
 
 
     for (int i = 0; i < textParticles.size(); ++i) {
@@ -395,7 +396,7 @@ void ofApp::draw() {
 
 
     if (guiInfo->pixelRandomOn) {
-        glPointSize(ofMap(scaledVol, 0, 1, 2, 30));
+        glPointSize(ofMap(scaledVol, 0, 1, 3, 30));
         playgroundMeshPixel.drawFaces();
     } else {
         glPointSize(1);
@@ -421,7 +422,7 @@ void ofApp::draw() {
     }
 
 
-// palast_trans.draw(0, 0, ofGetWidth(), ofGetHeight());
+    // palast_trans.draw(0, 0, ofGetWidth(), ofGetHeight());
     palast_trans_all.draw(0, 0, ofGetWidth(), ofGetHeight());
 
     ofPushStyle();
@@ -430,21 +431,28 @@ void ofApp::draw() {
     ofPopStyle();
 
 
+    if (guiInfo->windowsOn) {
+        ofPushStyle();
+        ofSetColor(255);
+        palast_white_windows.draw(0, 0, ofGetWidth(), ofGetHeight());
+        ofPopStyle();
+    }
 
 
-// if (scaleVolThresholdOn(scaledVol)) {
-//  oldNote = scaleVolCounter(scaledVol);
-//  midiOut.sendNoteOn(1, scaleVolCounter(scaledVol) + 64,  100);
-// }
-// if (scaleVolThresholdOff(scaledVol)) {
-//  midiOut.sendNoteOff(1, oldNote + 64,  100);
-// }
+
+    // if (scaleVolThresholdOn(scaledVol)) {
+    //  oldNote = scaleVolCounter(scaledVol);
+    //  midiOut.sendNoteOn(1, scaleVolCounter(scaledVol) + 64,  100);
+    // }
+    // if (scaleVolThresholdOff(scaledVol)) {
+    //  midiOut.sendNoteOff(1, oldNote + 64,  100);
+    // }
 
 
-// testMidiSignal += 0.1;
-// float _midiS = ofMap(int(testMidiSignal) % 127, 0, 127, 0, 7);
-// midiOut.sendControlChange(1, 7, int(_midiS));
-// ofDrawBitmapString(int(_midiS), 700, 20);
+    // testMidiSignal += 0.1;
+    // float _midiS = ofMap(int(testMidiSignal) % 127, 0, 127, 0, 7);
+    // midiOut.sendControlChange(1, 7, int(_midiS));
+    // ofDrawBitmapString(int(_midiS), 700, 20);
 
 
 }
@@ -660,9 +668,6 @@ void ofApp::mouseMoved(int x, int y ) {
 
 //--------------------------------------------------------------
 void ofApp::mouseDragged(int x, int y, int button) {
-
-    // float volume = ofMap(ofGetMouseX(), 0, ofGetWidth(), 0, 127);
-    // midiOut.sendControlChange(1, 7, volume);
 
 }
 

@@ -122,6 +122,7 @@ public:
     ofImage palast_trans;
     ofImage palast_trans_all;
     ofImage palast_black_windows;
+    ofImage palast_white_windows;
     ofImage palast_playzone;
 
 
@@ -148,6 +149,6 @@ public:
     ofMesh playgroundMeshQuadBuff;
 
     void updatePlaygroundMesh(ofMesh & m, ofMesh & mBuff, float audioVol, float ratio);
-
+    
 
 };

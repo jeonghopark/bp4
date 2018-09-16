@@ -17,6 +17,7 @@ public:
     ofxToggle pixelRandomOn;
     ofxToggle textOn;
     ofxToggle textureOn;
+    ofxToggle windowsOn;
 
 
     float scaledVol;
