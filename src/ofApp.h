@@ -31,6 +31,10 @@ public:
     void audioIn(ofSoundBuffer & input);
     float getSmoothedVol(float * _in, int _s, int _e);
 
+
+    float fullScreenRatio;
+
+
     shared_ptr<GuiInfoApp> guiInfo;
 
     vector <float> left;

@@ -12,8 +12,17 @@ void ofApp::setup() {
     ofSetVerticalSync(true);
 
 
-    float fullscreenWRatio = ofGetWidth() / 1920.0;
-    float fullscreenHRatio = ofGetHeight() / 1920.0;
+    cout << ofGetScreenWidth() << endl;
+
+    if (ofGetScreenWidth() == 5120) {
+        fullScreenRatio = 1;
+    } else {
+        fullScreenRatio = 0.4; // 2 / 5
+    }
+
+    float fullscreenWRatio = ofGetWidth() * fullScreenRatio / 1920.0;
+    float fullscreenHRatio = ofGetHeight() * fullScreenRatio / 1920.0;
+
 
 
     ofBackground(0);
@@ -21,8 +30,8 @@ void ofApp::setup() {
 
     switchOn = false;
 
-    textParticleLeftPos = ofVec3f(ofGetWidth() * 0.394, ofGetHeight() * 0.784, 0.0);
-    textParticleRightPos = ofVec3f(ofGetWidth() * 0.611, ofGetHeight() * 0.784, 0.0);
+    textParticleLeftPos = ofVec3f(ofGetWidth() * fullScreenRatio * 0.394, ofGetHeight() * fullScreenRatio * 0.784, 0.0);
+    textParticleRightPos = ofVec3f(ofGetWidth() * fullScreenRatio * 0.611, ofGetHeight() * fullScreenRatio * 0.784, 0.0);
 
     for (int i = 0; i < 10; i++) {
         ofTrueTypeFont _f;
@@ -147,8 +156,8 @@ void ofApp::setup() {
         eqFunction[i] = (float) (fft->getBinSize() - i) / (float) fft->getBinSize();
     }
 
-    appWidth = ofGetWidth();
-    appHeight = ofGetHeight();
+    appWidth = ofGetWidth() * fullScreenRatio;
+    appHeight = ofGetHeight() * fullScreenRatio;
 
 
     int _zLightDepth = 40;
@@ -398,7 +407,7 @@ void ofApp::draw() {
 
     ofPushStyle();
     ofSetColor(120);
-    palast_playzone.draw(0, 0, ofGetWidth(), ofGetHeight());
+    palast_playzone.draw(0, 0, ofGetWidth() * fullScreenRatio, ofGetHeight() * fullScreenRatio);
     ofPopStyle();
 
 
@@ -436,7 +445,7 @@ void ofApp::draw() {
         playgroundMeshTri.drawFaces();
 
         // ofSetColor(0, 180);
-        // ofDrawRectangle(0, 0, ofGetWidth(), ofGetHeight());
+        // ofDrawRectangle(0, 0, ofGetWidth() * fullScreenRatio, ofGetHeight() * fullScreenRatio);
         // playgroundMeshTri.drawWireframe();
 
         for (int i = 0; i < playgroundMeshTri.getNumVertices() - 1; i += 1) {
@@ -448,19 +457,19 @@ void ofApp::draw() {
     }
 
 
-    // palast_trans.draw(0, 0, ofGetWidth(), ofGetHeight());
-    palast_trans_all.draw(0, 0, ofGetWidth(), ofGetHeight());
+    // palast_trans.draw(0, 0, ofGetWidth() * fullScreenRatio, ofGetHeight() * fullScreenRatio);
+    palast_trans_all.draw(0, 0, ofGetWidth() * fullScreenRatio, ofGetHeight() * fullScreenRatio);
 
     ofPushStyle();
     ofSetColor(0);
-    palast_black_windows.draw(0, 0, ofGetWidth(), ofGetHeight());
+    palast_black_windows.draw(0, 0, ofGetWidth() * fullScreenRatio, ofGetHeight() * fullScreenRatio);
     ofPopStyle();
 
 
     if (guiInfo->windowsOn) {
         ofPushStyle();
         ofSetColor(255);
-        palast_white_windows.draw(0, 0, ofGetWidth(), ofGetHeight());
+        palast_white_windows.draw(0, 0, ofGetWidth() * fullScreenRatio, ofGetHeight() * fullScreenRatio);
         ofPopStyle();
     }
 
@@ -565,7 +574,7 @@ void ofApp::textView(int _index) {
     ofPushStyle();
     ofPushMatrix();
 
-    ofTranslate(ofGetWidth() * 0.347, ofGetHeight() - 250);
+    ofTranslate(ofGetWidth() * fullScreenRatio * 0.347, ofGetHeight() * fullScreenRatio - 250);
 
 
     // ofDrawBitmapString("Audio Trigger Sequence Text", 0, 55);

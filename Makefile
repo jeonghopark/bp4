@@ -51,7 +51,7 @@ afterplatform: $(TARGET_NAME)
 	@echo '  <integer>0</integer>' >> bin/$(BIN_NAME).app/Contents/Info.plist
 	@echo '  <key>IFMinorVersion</key>' >> bin/$(BIN_NAME).app/Contents/Info.plist
 	@echo '  <integer>1</integer>' >> bin/$(BIN_NAME).app/Contents/Info.plist
-	# @echo '  <key>NSHighResolutionCapable</key><true/>' >> bin/$(BIN_NAME).app/Contents/Info.plist
+	@echo '  <key>NSHighResolutionCapable</key><true/>' >> bin/$(BIN_NAME).app/Contents/Info.plist
 	@echo '</dict>' >> bin/$(BIN_NAME).app/Contents/Info.plist
 	@echo '</plist>' >> bin/$(BIN_NAME).app/Contents/Info.plist
 
