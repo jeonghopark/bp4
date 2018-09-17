@@ -14,7 +14,6 @@ public:
     void update();
     void draw();
 
-
     ofVec3f position;
     ofVec3f speed;
     string alphabetString;
@@ -30,7 +29,6 @@ public:
     float rotationSpeed;
 
     vector<ofVboMesh> font3d;
-    // ofLight pointLight;
 
 
 };
