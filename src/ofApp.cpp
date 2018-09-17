@@ -123,7 +123,7 @@ void ofApp::setup() {
     setSoundStream(soundStream);
 
 
-    verdana30.load("verdana.ttf", 30, true, true);
+    // verdana30.load("verdana.ttf", 30, true, true);
 
 
     plotHeight = 128;

@@ -25,7 +25,7 @@ TextParticle::TextParticle(ofVec3f _v, ofTrueTypeFont _f) {
 
     alphabetString = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
-    stringIndex = (int)ofRandom(26);
+    stringIndex = floor(ofRandom(26));
 
     // size = (int)ofRandom(7, 46);
     c.setHsb( ofRandom(255), 255, 255 );
