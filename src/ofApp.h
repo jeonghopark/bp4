@@ -33,7 +33,7 @@ public:
 
 
     float fullScreenRatio;
-
+    ofVec2f windowSize;
 
     shared_ptr<GuiInfoApp> guiInfo;
 
@@ -106,9 +106,6 @@ public:
     // vector<float> eqOutput;
     // vector<float> ifftOutput;
 
-
-    float appWidth;
-    float appHeight;
 
 
     void scaleVolChange();

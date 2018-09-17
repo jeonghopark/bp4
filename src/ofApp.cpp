@@ -16,12 +16,12 @@ void ofApp::setup() {
 
     if (ofGetScreenWidth() == 5120) {
         fullScreenRatio = 1;
+        windowSize = ofVec2f(ofGetWidth(), ofGetHeight());
     } else {
-        fullScreenRatio = 0.4; // 2 / 5
+        fullScreenRatio = 0.4 * 2; // 2 / 5
+        windowSize = ofVec2f(ofGetWidth() * fullScreenRatio, ofGetHeight() * fullScreenRatio);
+        ofSetWindowShape(windowSize.x, windowSize.y);
     }
-
-    float fullscreenWRatio = ofGetWidth() * fullScreenRatio / 1920.0;
-    float fullscreenHRatio = ofGetHeight() * fullScreenRatio / 1920.0;
 
 
 
@@ -30,8 +30,8 @@ void ofApp::setup() {
 
     switchOn = false;
 
-    textParticleLeftPos = ofVec3f(ofGetWidth() * fullScreenRatio * 0.394, ofGetHeight() * fullScreenRatio * 0.784, 0.0);
-    textParticleRightPos = ofVec3f(ofGetWidth() * fullScreenRatio * 0.611, ofGetHeight() * fullScreenRatio * 0.784, 0.0);
+    textParticleLeftPos = ofVec3f(windowSize.x * 0.394, windowSize.y * 0.784, 0.0);
+    textParticleRightPos = ofVec3f(windowSize.x * 0.611, windowSize.y * 0.784, 0.0);
 
     for (int i = 0; i < 10; i++) {
         ofTrueTypeFont _f;
@@ -57,7 +57,7 @@ void ofApp::setup() {
         for (int h = 0; h < playgroundImg.getHeight(); h += _stepP) {
             ofColor c = playgroundImg.getColor(w, h);
             if (c.a != 0) {
-                ofVec3f pos(w * fullscreenWRatio, h * fullscreenHRatio, 0.0);
+                ofVec3f pos(w * fullScreenRatio, h * fullScreenRatio, 0.0);
                 playgroundMeshPixel.addVertex(pos);
                 playgroundMeshPixel.addColor(c);
             }
@@ -72,7 +72,7 @@ void ofApp::setup() {
     for (int h = 0; h < playgroundImg.getHeight(); h += _stepT) {
         for (int w = 0; w < playgroundImg.getWidth(); w += _stepT) {
             ofColor c = playgroundImg.getColor(w, h);
-            ofVec3f pos(w * fullscreenWRatio, h * fullscreenHRatio, 0.0);
+            ofVec3f pos(w * fullScreenRatio, h * fullScreenRatio, 0.0);
             playgroundMeshTri.addVertex(pos);
             playgroundMeshTri.addColor(c);
         }
@@ -156,8 +156,6 @@ void ofApp::setup() {
         eqFunction[i] = (float) (fft->getBinSize() - i) / (float) fft->getBinSize();
     }
 
-    appWidth = ofGetWidth() * fullScreenRatio;
-    appHeight = ofGetHeight() * fullScreenRatio;
 
 
     int _zLightDepth = 40;
@@ -407,7 +405,7 @@ void ofApp::draw() {
 
     ofPushStyle();
     ofSetColor(120);
-    palast_playzone.draw(0, 0, ofGetWidth() * fullScreenRatio, ofGetHeight() * fullScreenRatio);
+    palast_playzone.draw(0, 0, palast_playzone.getWidth() * fullScreenRatio, palast_playzone.getHeight() * fullScreenRatio);
     ofPopStyle();
 
 
@@ -458,18 +456,18 @@ void ofApp::draw() {
 
 
     // palast_trans.draw(0, 0, ofGetWidth() * fullScreenRatio, ofGetHeight() * fullScreenRatio);
-    palast_trans_all.draw(0, 0, ofGetWidth() * fullScreenRatio, ofGetHeight() * fullScreenRatio);
+    palast_trans_all.draw(0, 0, palast_trans_all.getWidth() * fullScreenRatio, palast_trans_all.getHeight() * fullScreenRatio);
 
     ofPushStyle();
     ofSetColor(0);
-    palast_black_windows.draw(0, 0, ofGetWidth() * fullScreenRatio, ofGetHeight() * fullScreenRatio);
+    palast_black_windows.draw(0, 0, palast_black_windows.getWidth() * fullScreenRatio, palast_black_windows.getHeight() * fullScreenRatio);
     ofPopStyle();
 
 
     if (guiInfo->windowsOn) {
         ofPushStyle();
         ofSetColor(255);
-        palast_white_windows.draw(0, 0, ofGetWidth() * fullScreenRatio, ofGetHeight() * fullScreenRatio);
+        palast_white_windows.draw(0, 0, palast_white_windows.getWidth() * fullScreenRatio, palast_white_windows.getHeight() * fullScreenRatio);
         ofPopStyle();
     }
 
@@ -574,7 +572,7 @@ void ofApp::textView(int _index) {
     ofPushStyle();
     ofPushMatrix();
 
-    ofTranslate(ofGetWidth() * fullScreenRatio * 0.347, ofGetHeight() * fullScreenRatio - 250);
+    ofTranslate(windowSize.x * 0.347, windowSize.y * fullScreenRatio - 250);
 
 
     // ofDrawBitmapString("Audio Trigger Sequence Text", 0, 55);
