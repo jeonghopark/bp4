@@ -3,6 +3,7 @@
 #include "ofxFft.h"
 #include "ofxGui.h"
 
+// #include "vv_extrudeFont.h"
 #include "GuiInfoApp.h"
 #include "TextParticle.h"
 
@@ -113,8 +114,8 @@ public:
     vector<string> getStringVector(string fileName);
     vector<string> seussLines;
     vector<string> textWords;
-    ofVec3f textParticleLeft;
-    ofVec3f textParticleRight;
+    ofVec3f textParticleLeftPos;
+    ofVec3f textParticleRightPos;
 
     float testMidiSignal;
 
@@ -149,6 +150,17 @@ public:
     ofMesh playgroundMeshQuadBuff;
 
     void updatePlaygroundMesh(ofMesh & m, ofMesh & mBuff, float audioVol, float ratio);
+
+    ofLight pointLightL;
+    ofLight pointLightR;
+
+    ofLight pointLight;
+    ofColor lightColor;
+    float colorHue;
+    ofColor materialColor;
     
+    ofMaterial material;
+
+
 
 };

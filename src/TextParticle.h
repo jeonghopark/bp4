@@ -2,12 +2,14 @@
 
 #include "ofMain.h"
 
+#include "vv_extrudeFont.h"
 
-class TextParticle{
+
+class TextParticle : public ofBaseApp {
 
 public:
 
-    TextParticle(ofVec3f _v, ofTrueTypeFont _t);
+    TextParticle(ofVec3f _v, ofTrueTypeFont _f);
 
     void update();
     void draw();
@@ -26,5 +28,9 @@ public:
 
     int rotationZ;
     float rotationSpeed;
+
+    vector<ofVboMesh> font3d;
+    // ofLight pointLight;
+
 
 };

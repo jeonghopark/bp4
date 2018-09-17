@@ -21,17 +21,15 @@ void ofApp::setup() {
 
     switchOn = false;
 
-    textParticleLeft = ofVec3f(ofGetWidth() * 0.394, ofGetHeight() * 0.784, 0.0);
-    textParticleRight = ofVec3f(ofGetWidth() * 0.611, ofGetHeight() * 0.784, 0.0);
+    textParticleLeftPos = ofVec3f(ofGetWidth() * 0.394, ofGetHeight() * 0.784, 0.0);
+    textParticleRightPos = ofVec3f(ofGetWidth() * 0.611, ofGetHeight() * 0.784, 0.0);
 
-    for (int i = 0; i < 20; i++) {
+    for (int i = 0; i < 10; i++) {
         ofTrueTypeFont _f;
-        _f.load( "verdana.ttf", (int)ofRandom(7, 136) );
+        _f.load( "verdana.ttf", (int)ofRandom(7, 136), true, true, true );
         alphabetFont.push_back(_f);
-        TextParticle _t = TextParticle( textParticleLeft, alphabetFont[i] );  // 317, 633
-        textParticles.push_back(_t);
-        _t = TextParticle( textParticleRight, alphabetFont[i] );   // 494, 633
-        textParticles.push_back(_t);
+        textParticles.push_back(TextParticle( textParticleLeftPos, _f ));
+        textParticles.push_back(TextParticle( textParticleRightPos, _f ));
     }
 
 
@@ -92,7 +90,7 @@ void ofApp::setup() {
         for (ofBuffer::Line it = _buffer.getLines().begin(), end = _buffer.getLines().end(); it != end; ++it) {
             string line = *it;
             if (line.empty() == false) {
-                seussLines.push_back(line);
+                // seussLines.push_back(line);
             }
         }
     }
@@ -153,7 +151,25 @@ void ofApp::setup() {
     appHeight = ofGetHeight();
 
 
+    int _zLightDepth = 40;
+    pointLightL.setDiffuseColor( ofColor(255, 255, 255));
+    pointLightL.setSpecularColor( ofColor(0, 0, 255));
+    pointLightL.setPosition(textParticleLeftPos.x, textParticleLeftPos.y, textParticleLeftPos.z + _zLightDepth);
+    pointLightR.setDiffuseColor( ofColor(255, 255, 255));
+    pointLightR.setSpecularColor( ofColor(0, 0, 255));
+    pointLightR.setPosition(textParticleRightPos.x, textParticleRightPos.y, textParticleRightPos.z + _zLightDepth);
+    
+    material.setShininess( 64 );
+
+    lightColor.setBrightness( 180.f );
+    lightColor.setSaturation( 150.f );
+
+    materialColor.setBrightness(250.f);
+    materialColor.setSaturation(200);
+
+
 }
+
 
 
 
@@ -262,11 +278,9 @@ void ofApp::update() {
         switchOn = true;
         for (int i = 0; i < 10; i++) {
             if (ofRandom(1) < 0.5) {
-                TextParticle _t = TextParticle( textParticleLeft, alphabetFont[i] );
-                textParticles.push_back(_t);
+                textParticles.push_back(TextParticle( textParticleLeftPos, alphabetFont[i] ));
             } else {
-                TextParticle _t = TextParticle( textParticleRight, alphabetFont[i] );
-                textParticles.push_back(_t);
+                textParticles.push_back(TextParticle( textParticleRightPos, alphabetFont[i] ));
             }
         }
     } else {
@@ -383,15 +397,27 @@ void ofApp::midiOutScaleChange() {
 void ofApp::draw() {
 
     ofPushStyle();
-    ofSetColor(180);
+    ofSetColor(120);
     palast_playzone.draw(0, 0, ofGetWidth(), ofGetHeight());
     ofPopStyle();
 
 
-    if (guiInfo->textOn) {
+    if (guiInfo->textOn) {    
+        ofEnableDepthTest();
+        ofEnableLighting();
+        
+        pointLightL.enable();
+        pointLightR.enable();
+
         for (int i = 0; i < textParticles.size(); ++i) {
             textParticles[i].draw();
         }
+
+        pointLightL.disable();
+        pointLightR.disable();
+
+        ofDisableLighting();
+        ofDisableDepthTest();
     }
 
 
@@ -643,6 +669,7 @@ float ofApp::getSmoothedVol(float * _in, int _s, int _e) {
 
 //--------------------------------------------------------------
 void ofApp::keyPressed  (int key) {
+
     if ( key == 's' ) {
         soundStream.start();
     } else if ( key == 'e' ) {
@@ -651,6 +678,7 @@ void ofApp::keyPressed  (int key) {
         lineMovingOnOff = true;
         lineColor.setHsb( ofRandom(255), 255, 255 );
     }
+
 }
 
 
