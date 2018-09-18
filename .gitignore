@@ -1,7 +1,6 @@
 *.app
 obj/
 .DS_Store
-bin/*
 *.xcodeproj
 *.xcconfig
 openFrameworks-Info.plist
