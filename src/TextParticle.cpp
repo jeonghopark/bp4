@@ -15,9 +15,9 @@ TextParticle::TextParticle(ofVec3f _v, ofTrueTypeFont _f) {
 
     float _yRandom;
     if (ofRandom(1) < 0.5) {
-        _yRandom = ofRandom(-0.15, -2);
+        _yRandom = ofRandom(0.15, 2);
     } else {
-        _yRandom = ofRandom(0.15, 0.75);
+        _yRandom = ofRandom(-0.15, -0.75);
     }
 
 

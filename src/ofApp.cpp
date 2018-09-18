@@ -25,13 +25,13 @@ void ofApp::setup() {
 
 
 
-    ofBackground(0);
+    ofBackground(54);
 
 
     switchOn = false;
 
-    textParticleLeftPos = ofVec3f(windowSize.x * 0.394, windowSize.y * 0.784, 0.0);
-    textParticleRightPos = ofVec3f(windowSize.x * 0.611, windowSize.y * 0.784, 0.0);
+    textParticleLeftPos = ofVec3f(windowSize.x * 0.394, windowSize.y * (1 - 0.784), 0.0);
+    textParticleRightPos = ofVec3f(windowSize.x * 0.611, windowSize.y * (1 - 0.784), 0.0);
 
     for (int i = 0; i < 10; i++) {
         ofTrueTypeFont _f;
@@ -57,7 +57,7 @@ void ofApp::setup() {
         for (int h = 0; h < playgroundImg.getHeight(); h += _stepP) {
             ofColor c = playgroundImg.getColor(w, h);
             if (c.a != 0) {
-                ofVec3f pos(w * fullScreenRatio, h * fullScreenRatio, 0.0);
+                ofVec3f pos(w * fullScreenRatio, windowSize.y - h * fullScreenRatio, 0.0);
                 playgroundMeshPixel.addVertex(pos);
                 playgroundMeshPixel.addColor(c);
             }
@@ -72,7 +72,7 @@ void ofApp::setup() {
     for (int h = 0; h < playgroundImg.getHeight(); h += _stepT) {
         for (int w = 0; w < playgroundImg.getWidth(); w += _stepT) {
             ofColor c = playgroundImg.getColor(w, h);
-            ofVec3f pos(w * fullScreenRatio, h * fullScreenRatio, 0.0);
+            ofVec3f pos(w * fullScreenRatio, windowSize.y - h * fullScreenRatio, 0.0);
             playgroundMeshTri.addVertex(pos);
             playgroundMeshTri.addColor(c);
         }
@@ -158,21 +158,29 @@ void ofApp::setup() {
 
 
 
-    int _zLightDepth = 40;
+    int _zLightDepth = 400;
     pointLightL.setDiffuseColor( ofColor(255, 255, 255));
     pointLightL.setSpecularColor( ofColor(0, 0, 255));
     pointLightL.setPosition(textParticleLeftPos.x, textParticleLeftPos.y, textParticleLeftPos.z + _zLightDepth);
     pointLightR.setDiffuseColor( ofColor(255, 255, 255));
     pointLightR.setSpecularColor( ofColor(0, 0, 255));
     pointLightR.setPosition(textParticleRightPos.x, textParticleRightPos.y, textParticleRightPos.z + _zLightDepth);
-    
+
     material.setShininess( 64 );
 
-    lightColor.setBrightness( 180.f );
-    lightColor.setSaturation( 150.f );
+    lightColor.setBrightness(180);
+    lightColor.setSaturation(150);
 
-    materialColor.setBrightness(250.f);
+    materialColor.setBrightness(250);
     materialColor.setSaturation(200);
+
+
+    cam.setAutoDistance(false);
+    cam.setPosition(ofVec3f(0, -ofGetHeight() * 0.5 + 150, 1330));
+    // cam.setOrientation(ofVec3f(25, 0, 0));
+    cam.setRelativeYAxis(true);
+    cam.setLensOffset(ofVec2f(0, 0.8));
+    // cam.lookAt(ofVec3f(0, -ofGetHeight() * 0.5, -700));
 
 
 }
@@ -403,19 +411,32 @@ void ofApp::midiOutScaleChange() {
 //--------------------------------------------------------------
 void ofApp::draw() {
 
+
+
+    cam.begin();
+    // pointLight.enable();
+
+    ofDisableDepthTest();
+
+    ofTranslate(-ofGetWidth() * 0.5, -ofGetHeight() * 0.5);
     ofPushStyle();
-    ofSetColor(120);
+    ofSetColor(255);
     palast_playzone.draw(0, 0, palast_playzone.getWidth() * fullScreenRatio, palast_playzone.getHeight() * fullScreenRatio);
     ofPopStyle();
 
+    ofEnableDepthTest();
 
-    if (guiInfo->textOn) {    
+
+    if (guiInfo->textOn) {
+        ofPushMatrix();
+
         ofEnableDepthTest();
         ofEnableLighting();
-        
+
         pointLightL.enable();
         pointLightR.enable();
 
+        ofTranslate(0, 0, -30);
         for (int i = 0; i < textParticles.size(); ++i) {
             textParticles[i].draw();
         }
@@ -425,6 +446,11 @@ void ofApp::draw() {
 
         ofDisableLighting();
         ofDisableDepthTest();
+
+        pointLightL.draw();
+        pointLightR.draw();
+
+        ofPopMatrix();
     }
 
 
@@ -455,6 +481,8 @@ void ofApp::draw() {
     }
 
 
+    ofDisableDepthTest();
+
     // palast_trans.draw(0, 0, ofGetWidth() * fullScreenRatio, ofGetHeight() * fullScreenRatio);
     palast_trans_all.draw(0, 0, palast_trans_all.getWidth() * fullScreenRatio, palast_trans_all.getHeight() * fullScreenRatio);
 
@@ -470,6 +498,13 @@ void ofApp::draw() {
         palast_white_windows.draw(0, 0, palast_white_windows.getWidth() * fullScreenRatio, palast_white_windows.getHeight() * fullScreenRatio);
         ofPopStyle();
     }
+
+    ofEnableDepthTest();
+
+
+
+    cam.end();
+    // pointLight.disable();
 
 
 
