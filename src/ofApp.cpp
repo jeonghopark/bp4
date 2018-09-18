@@ -176,7 +176,7 @@ void ofApp::setup() {
 
 
     cam.setAutoDistance(false);
-    cam.setPosition(ofVec3f(0, -ofGetHeight() * 0.5 + 150, 1330));
+    cam.setPosition(ofVec3f(0, -ofGetHeight() * fullScreenRatio * 0.5, 1330));
     // cam.setOrientation(ofVec3f(25, 0, 0));
     cam.setRelativeYAxis(true);
     cam.setLensOffset(ofVec2f(0, 0.8));
