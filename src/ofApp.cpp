@@ -158,15 +158,19 @@ void ofApp::setup() {
 
 
 
-    int _zLightDepth = 400;
+    int _zLightDepth = 10;
+    pointLightL.setPointLight();
     pointLightL.setDiffuseColor( ofColor(255, 255, 255));
-    pointLightL.setSpecularColor( ofColor(0, 0, 255));
-    pointLightL.setPosition(textParticleLeftPos.x, textParticleLeftPos.y, textParticleLeftPos.z + _zLightDepth);
+    pointLightL.setSpecularColor( ofColor(0, 0, 0));
+    // pointLightL.setPosition(textParticleLeftPos.x, textParticleLeftPos.y, textParticleLeftPos.z + _zLightDepth);
+    pointLightL.setPosition(0, 0, 10);
+    pointLightR.setPointLight();
     pointLightR.setDiffuseColor( ofColor(255, 255, 255));
-    pointLightR.setSpecularColor( ofColor(0, 0, 255));
-    pointLightR.setPosition(textParticleRightPos.x, textParticleRightPos.y, textParticleRightPos.z + _zLightDepth);
+    pointLightR.setSpecularColor( ofColor(0, 0, 0));
+    // pointLightR.setPosition(textParticleRightPos.x, textParticleRightPos.y, textParticleRightPos.z + _zLightDepth);
+    pointLightR.setPosition(0, 0, 10);
 
-    material.setShininess( 64 );
+    material.setShininess( 255 );
 
     lightColor.setBrightness(180);
     lightColor.setSaturation(150);
@@ -176,10 +180,10 @@ void ofApp::setup() {
 
 
     cam.setAutoDistance(false);
-    cam.setPosition(ofVec3f(0, -ofGetHeight() * fullScreenRatio * 0.5, 1330));
+    cam.setPosition(ofVec3f(0, -ofGetHeight() * fullScreenRatio * 0.5 + 190, 1330 / 0.8));
     // cam.setOrientation(ofVec3f(25, 0, 0));
     cam.setRelativeYAxis(true);
-    cam.setLensOffset(ofVec2f(0, 0.8));
+    // cam.setLensOffset(ofVec2f(0, 0.8));
     // cam.lookAt(ofVec3f(0, -ofGetHeight() * 0.5, -700));
 
 
@@ -719,6 +723,14 @@ void ofApp::keyPressed  (int key) {
     } else if (key == ' ') {
         lineMovingOnOff = true;
         lineColor.setHsb( ofRandom(255), 255, 255 );
+    } else if (key == 'r') {
+        cam.setAutoDistance(false);
+        cam.setPosition(ofVec3f(0, -ofGetHeight() * fullScreenRatio * 0.5 + 190, 1330 / 0.8));
+        // cam.setOrientation(ofVec3f(25, 0, 0));
+        cam.setRelativeYAxis(true);
+        cam.setLensOffset(ofVec2f(0, 0.8));
+        // cam.lookAt(ofVec3f(0, -ofGetHeight() * 0.5, -700));
+
     }
 
 }
