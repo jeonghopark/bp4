@@ -158,13 +158,15 @@ void ofApp::setup() {
 
 
 
-    int _zLightDepth = 400;
+    int _zLightDepth = 50;
+    ofVec3f _pL = textParticleLeftPos - ofVec3f(ofGetWidth() * 0.5, ofGetHeight() * 0.5, -_zLightDepth);
+    ofVec3f _pR = textParticleRightPos - ofVec3f(ofGetWidth() * 0.5, ofGetHeight() * 0.5, -_zLightDepth);
+    pointLightL.setPosition(_pL);
     pointLightL.setDiffuseColor( ofColor(255, 255, 255));
     pointLightL.setSpecularColor( ofColor(0, 0, 255));
-    pointLightL.setPosition(textParticleLeftPos.x, textParticleLeftPos.y, textParticleLeftPos.z + _zLightDepth);
+    pointLightR.setPosition(_pR);
     pointLightR.setDiffuseColor( ofColor(255, 255, 255));
     pointLightR.setSpecularColor( ofColor(0, 0, 255));
-    pointLightR.setPosition(textParticleRightPos.x, textParticleRightPos.y, textParticleRightPos.z + _zLightDepth);
 
     material.setShininess( 64 );
 
