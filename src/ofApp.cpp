@@ -183,7 +183,7 @@ void ofApp::setup() {
     if (ofGetScreenWidth() == 5120) {
         cam.setPosition(ofVec3f(0, 0, 1330 / 0.8));
     } else {
-        cam.setPosition(ofVec3f(0, -ofGetHeight() * fullScreenRatio * 0.5 + 190, 1330 / 0.8));
+        cam.setPosition(ofVec3f(0, -ofGetHeight() * fullScreenRatio * 0.5 + ofGetHeight() * fullScreenRatio * 0.5, 1330));
     }
     // cam.setOrientation(ofVec3f(25, 0, 0));
     cam.setRelativeYAxis(true);
