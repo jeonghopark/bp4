@@ -258,11 +258,11 @@ vector<string> ofApp::getStringVector(string fileName) {
 
 
 
-//--------------------------------------------------------------
-bool shouldRemove(TextParticle & p) {
-    if (p.position.y < 0 ) return true;
-    else return false;
-}
+// //--------------------------------------------------------------
+// bool shouldRemove(TextParticle & p) {
+//     if (p.position.y < 0 ) return true;
+//     else return false;
+// }
 
 
 
@@ -287,7 +287,7 @@ void ofApp::update() {
     for (int i = 0; i < textParticles.size(); ++i) {
         textParticles[i].update();
     }
-    ofRemove(textParticles, shouldRemove);
+    // ofRemove(textParticles, shouldRemove);
 
 
 
@@ -313,6 +313,15 @@ void ofApp::update() {
     if (!scaleVolThresholdOn(scaledVol)) {
         switchOn = false;
     }
+
+
+
+    for (int i=0; i<textParticles.size(); i++) {
+        if (textParticles[i].position.x < 0 || textParticles[i].position.x > ofGetWidth() || textParticles[i].position.y < 0 || textParticles[i].position.y > ofGetHeight()) {
+            textParticles.erase(textParticles.begin() + i);
+        }
+    }
+
 
 
     // if (lineMoving > 282) {

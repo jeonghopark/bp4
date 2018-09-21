@@ -44,6 +44,7 @@ void TextParticle::update() {
 
     position += speed;
     rotationZ += rotationSpeed;
+
 }
 
 
