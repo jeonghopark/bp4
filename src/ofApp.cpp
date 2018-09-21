@@ -158,17 +158,15 @@ void ofApp::setup() {
 
 
 
-    int _zLightDepth = 10;
-    pointLightL.setPointLight();
+    int _zLightDepth = 50;
+    ofVec3f _pL = textParticleLeftPos - ofVec3f(ofGetWidth() * 0.5, ofGetHeight() * 0.5, -_zLightDepth);
+    ofVec3f _pR = textParticleRightPos - ofVec3f(ofGetWidth() * 0.5, ofGetHeight() * 0.5, -_zLightDepth);
+    pointLightL.setPosition(_pL);
     pointLightL.setDiffuseColor( ofColor(255, 255, 255));
-    pointLightL.setSpecularColor( ofColor(0, 0, 0));
-    // pointLightL.setPosition(textParticleLeftPos.x, textParticleLeftPos.y, textParticleLeftPos.z + _zLightDepth);
-    pointLightL.setPosition(0, 0, 10);
-    pointLightR.setPointLight();
+    pointLightL.setSpecularColor( ofColor(0, 0, 255));
+    pointLightR.setPosition(_pR);
     pointLightR.setDiffuseColor( ofColor(255, 255, 255));
-    pointLightR.setSpecularColor( ofColor(0, 0, 0));
-    // pointLightR.setPosition(textParticleRightPos.x, textParticleRightPos.y, textParticleRightPos.z + _zLightDepth);
-    pointLightR.setPosition(0, 0, 10);
+    pointLightR.setSpecularColor( ofColor(0, 0, 255));
 
     material.setShininess( 255 );
 
@@ -180,7 +178,13 @@ void ofApp::setup() {
 
 
     cam.setAutoDistance(false);
-    cam.setPosition(ofVec3f(0, -ofGetHeight() * fullScreenRatio * 0.5 + 190, 1330 / 0.8));
+
+
+    if (ofGetScreenWidth() == 5120) {
+        cam.setPosition(ofVec3f(0, 0, 1330 / 0.8));
+    } else {
+        cam.setPosition(ofVec3f(0, -ofGetHeight() * fullScreenRatio * 0.5 + 190, 1330 / 0.8));
+    }
     // cam.setOrientation(ofVec3f(25, 0, 0));
     cam.setRelativeYAxis(true);
     // cam.setLensOffset(ofVec2f(0, 0.8));
@@ -424,7 +428,7 @@ void ofApp::draw() {
 
     ofTranslate(-ofGetWidth() * 0.5, -ofGetHeight() * 0.5);
     ofPushStyle();
-    ofSetColor(255);
+    ofSetColor(60);
     palast_playzone.draw(0, 0, palast_playzone.getWidth() * fullScreenRatio, palast_playzone.getHeight() * fullScreenRatio);
     ofPopStyle();
 
