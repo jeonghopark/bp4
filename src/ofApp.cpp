@@ -422,7 +422,7 @@ void ofApp::draw() {
 
     ofTranslate(-ofGetWidth() * 0.5, -ofGetHeight() * 0.5);
     ofPushStyle();
-    ofSetColor(255);
+    ofSetColor(60);
     palast_playzone.draw(0, 0, palast_playzone.getWidth() * fullScreenRatio, palast_playzone.getHeight() * fullScreenRatio);
     ofPopStyle();
 
