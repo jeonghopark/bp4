@@ -267,12 +267,7 @@ vector<string> ofApp::getStringVector(string fileName) {
 
 
 //--------------------------------------------------------------
-void ofApp::update() {
-
-    scaleVolChange();
-
-    midiOutScaleChange();
-
+void ofApp::guiUpdate() {
 
     guiInfo->frameRate = ofToString(ofGetFrameRate(), 1);
     guiInfo->scaledVol = scaledVol;
@@ -281,6 +276,20 @@ void ofApp::update() {
     guiInfo->fftBinSize = fft->getBinSize();
     guiInfo->plotHeight = plotHeight;
     guiInfo->scaledBaseVol = scaledBaseVol;
+
+}
+
+
+
+
+//--------------------------------------------------------------
+void ofApp::update() {
+
+    scaleVolChange();
+
+    midiOutScaleChange();
+
+    guiUpdate();
 
 
 

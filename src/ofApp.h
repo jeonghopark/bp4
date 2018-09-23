@@ -36,6 +36,8 @@ public:
     ofVec2f windowSize;
 
     shared_ptr<GuiInfoApp> guiInfo;
+    void guiUpdate();
+
 
     vector <float> left;
     vector <float> right;
@@ -105,7 +107,6 @@ public:
     // vector<float> eqFunction;
     // vector<float> eqOutput;
     // vector<float> ifftOutput;
-
 
 
     void scaleVolChange();
